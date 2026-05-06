@@ -166,7 +166,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -743,7 +743,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "200":
           description: Job
@@ -762,7 +762,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -801,7 +801,7 @@ paths:
         - name: jobId
           in: query
           schema:
-            type: integer
+            type: string
         - name: status
           in: query
           schema:
@@ -826,7 +826,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -889,7 +889,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "200":
           description: Assessment with questions
@@ -908,7 +908,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -1088,6 +1088,33 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ResumeAnalysis"
+
+  /resume/video-upload:
+    post:
+      operationId: uploadVideoResume
+      tags: [resume]
+      summary: Upload a video resume (MP4/MOV/WEBM)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                video:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Video uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  videoUrl:
+                    type: string
+                  thumbnailUrl:
+                    type: string
 
   # CAREER
   /career/stats:
@@ -1576,6 +1603,12 @@ components:
           type: string
         phone:
           type: string
+        videoResumeUrl:
+          type: string
+        videoResumeThumbnail:
+          type: string
+        communicationScore:
+          type: integer
         socialLinks:
           $ref: "#/components/schemas/SocialLinks"
         privacy:
@@ -1627,6 +1660,12 @@ components:
           type: string
         phone:
           type: string
+        videoResumeUrl:
+          type: string
+        videoResumeThumbnail:
+          type: string
+        communicationScore:
+          type: integer
         socialLinks:
           $ref: "#/components/schemas/SocialLinks"
         privacy:

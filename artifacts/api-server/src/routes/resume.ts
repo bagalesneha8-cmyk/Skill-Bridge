@@ -151,6 +151,44 @@ router.post("/resume/sync", async (req, res): Promise<void> => {
   res.json({ message: "Profile updated successfully" });
 });
 
+// POST /resume/video-upload
+router.post("/resume/video-upload", upload.single("video"), async (req, res): Promise<void> => {
+  console.log("[VIDEO UPLOAD DEBUG] Request reached handler");
+  const userId = getUserIdFromToken(req.headers.authorization);
+  if (!userId) { 
+    console.log("[VIDEO UPLOAD DEBUG] Unauthorized upload attempt - No valid token");
+    res.status(401).json({ error: "Unauthorized" }); 
+    return; 
+  }
+
+  if (!req.file) {
+    console.log("[VIDEO UPLOAD DEBUG] No file found in req.file. Multer might have failed.");
+    console.log("[VIDEO UPLOAD DEBUG] Request body:", req.body);
+    console.log("[VIDEO UPLOAD DEBUG] Request headers:", req.headers);
+    res.status(400).json({ error: "No video file uploaded or file type not accepted" });
+    return;
+  }
+
+  console.log(`[VIDEO UPLOAD DEBUG] File received: ${req.file.originalname}, size: ${req.file.size}, type: ${req.file.mimetype}`);
+
+  // Simulate video upload to cloud storage
+  // In a real app, we'd upload to S3/Cloudinary and get a URL
+  // Here we'll just return a mock URL
+  const videoUrl = `https://storage.skillsync.ai/videos/${userId}/${req.file.originalname}`;
+  const thumbnailUrl = `https://storage.skillsync.ai/thumbnails/${userId}/${req.file.originalname.replace(/\.[^/.]+$/, "")}.jpg`;
+
+  console.log(`Updating user ${userId} with video info`);
+  // Update user with video resume info
+  await User.findByIdAndUpdate(userId, {
+    videoResumeUrl: videoUrl,
+    videoResumeThumbnail: thumbnailUrl,
+    communicationScore: Math.floor(Math.random() * 40) + 60, // Simulate AI scoring
+  });
+
+  console.log("Video upload simulation complete");
+  res.status(201).json({ videoUrl, thumbnailUrl });
+});
+
 async function parseResumeWithAI(text: string) {
   // Enhanced Simulation of AI Parsing
   const lines = text.split("\n").map(l => l.trim()).filter(l => l.length > 0);

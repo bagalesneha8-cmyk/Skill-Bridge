@@ -14,6 +14,9 @@ const userSchema = new mongoose.Schema({
   level: { type: Number, required: true, default: 1 },
   streak: { type: Number, required: true, default: 0 },
   phone: { type: String },
+  videoResumeUrl: { type: String },
+  videoResumeThumbnail: { type: String },
+  communicationScore: { type: Number, default: 0 },
   socialLinks: {
     linkedin: { type: String },
     github: { type: String },

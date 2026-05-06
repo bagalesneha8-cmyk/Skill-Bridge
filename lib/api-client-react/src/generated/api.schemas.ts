@@ -70,6 +70,9 @@ export interface User {
   institution?: string;
   location?: string;
   phone?: string;
+  videoResumeUrl?: string;
+  videoResumeThumbnail?: string;
+  communicationScore?: number;
   socialLinks?: SocialLinks;
   privacy?: PrivacySettings;
   xp?: number;
@@ -90,6 +93,9 @@ export interface UpdateUserBody {
   location?: string;
   avatar?: string;
   phone?: string;
+  videoResumeUrl?: string;
+  videoResumeThumbnail?: string;
+  communicationScore?: number;
   socialLinks?: SocialLinks;
   privacy?: PrivacySettings;
 }
@@ -914,7 +920,7 @@ export const ListJobsType = {
 } as const;
 
 export type ListApplicationsParams = {
-  jobId?: number;
+  jobId?: string;
   status?: string;
 };
 
@@ -941,6 +947,15 @@ export type SyncResumeDataBody = {
 
 export type SyncResumeData200 = {
   message?: string;
+};
+
+export type UploadVideoResumeBody = {
+  video?: Blob;
+};
+
+export type UploadVideoResume201 = {
+  videoUrl?: string;
+  thumbnailUrl?: string;
 };
 
 export type ListFreelanceProjectsParams = {

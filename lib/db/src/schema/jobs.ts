@@ -19,6 +19,12 @@ const jobApplicationSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   status: { type: String, required: true, default: "pending" },
   coverLetter: { type: String },
+  interview: {
+    scheduledAt: { type: Date },
+    link: { type: String },
+    instructions: { type: String },
+    meetingTool: { type: String, enum: ["google_meet", "zoom", "teams", "other"] },
+  },
 }, { timestamps: { createdAt: "appliedAt", updatedAt: true } });
 
 export const Job = mongoose.model("Job", jobSchema);

@@ -40,6 +40,7 @@ async function seed() {
 
   // Users
   const users = await User.insertMany([
+    { name: "DARSHAN TOTAGI", email: "darshantotagi7975@gmail.com", password: hash("darsh7975"), role: "student", institution: "SkillSync University", location: "India", bio: "Aspiring software engineer.", xp: 2500, level: 12, streak: 15 },
     { name: "Sneha Bagale", email: "bagalesneha8_db_user", password: hash("1234"), role: "admin", institution: "SkillSync", location: "Global", bio: "Database user.", xp: 9999, level: 20, streak: 30 },
     { name: "Alice Chen", email: "alice@skillsync.ai", password: hash("password"), role: "student", institution: "MIT", location: "Boston, MA", bio: "CS senior passionate about ML and distributed systems.", xp: 1250, level: 5, streak: 7 },
     { name: "Bob Patel", email: "bob@skillsync.ai", password: hash("password"), role: "recruiter", institution: "Google", location: "San Francisco, CA", bio: "Tech recruiter at Google with 5 years of experience.", xp: 800, level: 4, streak: 3 },
@@ -48,7 +49,7 @@ async function seed() {
     { name: "Admin", email: "admin@skillsync.ai", password: hash("password"), role: "admin", institution: "SkillSync", location: "Global", bio: "Platform administrator.", xp: 9999, level: 20, streak: 30 },
   ]);
 
-  const [alice, bob, carol, dave] = users;
+  const [darshan, alice, bob, carol, dave] = users;
 
   // Skills
   await UserSkill.insertMany([
@@ -77,11 +78,82 @@ async function seed() {
 
   const [job1, job2, job3] = jobs;
 
+  // Freelance Projects
+  const freelanceProjects = await FreelanceProject.insertMany([
+    {
+      title: "React Dashboard Development",
+      description: "Looking for a skilled React developer to build a modern dashboard with Tailwind CSS and Framer Motion. The project involves creating data visualizations and responsive layouts.",
+      budget: "$1,200",
+      skills: ["React", "Tailwind CSS", "Framer Motion", "Chart.js"],
+      deadline: "2026-06-15",
+      status: "open",
+      clientId: bob._id,
+      bidCount: 3
+    },
+    {
+      title: "Mobile App UI/UX Design",
+      description: "Need a creative UI/UX designer to design a 10-screen mobile app for a travel startup. Deliverables include Figma prototypes and high-fidelity mockups.",
+      budget: "$800",
+      skills: ["Figma", "UI/UX Design", "Prototyping"],
+      deadline: "2026-06-01",
+      status: "open",
+      clientId: dave._id,
+      bidCount: 5
+    },
+    {
+      title: "Python Web Scraper",
+      description: "Develop a robust Python web scraper to extract product data from various e-commerce websites and save it to a PostgreSQL database.",
+      budget: "$500",
+      skills: ["Python", "BeautifulSoup", "PostgreSQL", "Scrapy"],
+      deadline: "2026-05-25",
+      status: "open",
+      clientId: bob._id,
+      bidCount: 2
+    },
+    {
+      title: "Node.js API Integration",
+      description: "Integrate third-party payment gateways and CRM systems into an existing Node.js/Express backend.",
+      budget: "$1,500",
+      skills: ["Node.js", "Express", "Stripe API", "Salesforce"],
+      deadline: "2026-07-01",
+      status: "open",
+      clientId: dave._id,
+      bidCount: 0
+    }
+  ]);
+
+  const [fp1, fp2, fp3] = freelanceProjects;
+
+  // Bids for FP1
+  await Bid.insertMany([
+    { projectId: fp1._id, freelancerId: alice._id, amount: "$1,100", proposal: "I have extensive experience with React and data viz. I can deliver this in 2 weeks.", deliveryTime: "14 days", status: "pending" },
+    { projectId: fp1._id, freelancerId: carol._id, amount: "$1,200", proposal: "Expert developer with 5+ years of experience. Check my portfolio for similar projects.", deliveryTime: "10 days", status: "pending" },
+  ]);
+
+  // Bids for FP2
+  await Bid.insertMany([
+    { projectId: fp2._id, freelancerId: alice._id, amount: "$750", proposal: "Passionate about travel apps. I've designed several mobile UIs in Figma.", deliveryTime: "7 days", status: "pending" },
+  ]);
+
   // Applications
   await JobApplication.insertMany([
     { jobId: job1._id, userId: alice._id, status: "shortlisted", coverLetter: "I am passionate about building user-centric products at Google..." },
     { jobId: job2._id, userId: alice._id, status: "pending", coverLetter: "Stripe's mission to increase the GDP of the internet resonates deeply with me..." },
     { jobId: job3._id, userId: alice._id, status: "rejected", coverLetter: "My research experience in NLP aligns well with DeepMind's goals..." },
+    { 
+      jobId: job1._id, 
+      userId: darshan._id, 
+      status: "interview", 
+      coverLetter: "I'm excited to apply for this position...",
+      interview: {
+        scheduledAt: new Date(Date.now() + 86400000 * 2), // Tomorrow
+        link: "https://meet.google.com/abc-defg-hij",
+        meetingTool: "google_meet",
+        instructions: "Please prepare a 10-minute presentation on your latest project. The interview will focus on your technical skills and architectural decisions."
+      }
+    },
+    { jobId: job2._id, userId: darshan._id, status: "pending", coverLetter: "I believe my skills are a great fit..." },
+    { jobId: job3._id, userId: darshan._id, status: "rejected", coverLetter: "Thank you for considering me..." },
   ]);
 
   // Assessments

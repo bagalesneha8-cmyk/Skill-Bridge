@@ -78,6 +78,8 @@ import type {
   UpdateSubmissionBody,
   UpdateUserBody,
   UploadResumeFileBody,
+  UploadVideoResume201,
+  UploadVideoResumeBody,
   User,
   UserSkill,
   UsersListResponse,
@@ -657,12 +659,12 @@ export function useGetUser<
 /**
  * @summary Update user profile
  */
-export const getUpdateUserUrl = (id: number) => {
+export const getUpdateUserUrl = (id: string) => {
   return `/api/users/${id}`;
 };
 
 export const updateUser = async (
-  id: number,
+  id: string,
   updateUserBody: UpdateUserBody,
   options?: RequestInit,
 ): Promise<User> => {
@@ -681,14 +683,14 @@ export const getUpdateUserMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof updateUser>>,
     TError,
-    { id: number; data: BodyType<UpdateUserBody> },
+    { id: string; data: BodyType<UpdateUserBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof updateUser>>,
   TError,
-  { id: number; data: BodyType<UpdateUserBody> },
+  { id: string; data: BodyType<UpdateUserBody> },
   TContext
 > => {
   const mutationKey = ["updateUser"];
@@ -702,7 +704,7 @@ export const getUpdateUserMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof updateUser>>,
-    { id: number; data: BodyType<UpdateUserBody> }
+    { id: string; data: BodyType<UpdateUserBody> }
   > = (props) => {
     const { id, data } = props ?? {};
 
@@ -728,14 +730,14 @@ export const useUpdateUser = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof updateUser>>,
     TError,
-    { id: number; data: BodyType<UpdateUserBody> },
+    { id: string; data: BodyType<UpdateUserBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationResult<
   Awaited<ReturnType<typeof updateUser>>,
   TError,
-  { id: number; data: BodyType<UpdateUserBody> },
+  { id: string; data: BodyType<UpdateUserBody> },
   TContext
 > => {
   return useMutation(getUpdateUserMutationOptions(options));
@@ -2747,12 +2749,12 @@ export const useCreateJob = <
 /**
  * @summary Get job by ID
  */
-export const getGetJobUrl = (id: number) => {
+export const getGetJobUrl = (id: string) => {
   return `/api/jobs/${id}`;
 };
 
 export const getJob = async (
-  id: number,
+  id: string,
   options?: RequestInit,
 ): Promise<Job> => {
   return customFetch<Job>(getGetJobUrl(id), {
@@ -2761,7 +2763,7 @@ export const getJob = async (
   });
 };
 
-export const getGetJobQueryKey = (id: number) => {
+export const getGetJobQueryKey = (id: string) => {
   return [`/api/jobs/${id}`] as const;
 };
 
@@ -2769,7 +2771,7 @@ export const getGetJobQueryOptions = <
   TData = Awaited<ReturnType<typeof getJob>>,
   TError = ErrorType<unknown>,
 >(
-  id: number,
+  id: string,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getJob>>, TError, TData>;
     request?: SecondParameter<typeof customFetch>;
@@ -2804,7 +2806,7 @@ export function useGetJob<
   TData = Awaited<ReturnType<typeof getJob>>,
   TError = ErrorType<unknown>,
 >(
-  id: number,
+  id: string,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getJob>>, TError, TData>;
     request?: SecondParameter<typeof customFetch>;
@@ -2822,12 +2824,12 @@ export function useGetJob<
 /**
  * @summary Apply for a job
  */
-export const getApplyJobUrl = (id: number) => {
+export const getApplyJobUrl = (id: string) => {
   return `/api/jobs/${id}/apply`;
 };
 
 export const applyJob = async (
-  id: number,
+  id: string,
   applyJobBody: ApplyJobBody,
   options?: RequestInit,
 ): Promise<JobApplication> => {
@@ -2846,14 +2848,14 @@ export const getApplyJobMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof applyJob>>,
     TError,
-    { id: number; data: BodyType<ApplyJobBody> },
+    { id: string; data: BodyType<ApplyJobBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof applyJob>>,
   TError,
-  { id: number; data: BodyType<ApplyJobBody> },
+  { id: string; data: BodyType<ApplyJobBody> },
   TContext
 > => {
   const mutationKey = ["applyJob"];
@@ -2867,7 +2869,7 @@ export const getApplyJobMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof applyJob>>,
-    { id: number; data: BodyType<ApplyJobBody> }
+    { id: string; data: BodyType<ApplyJobBody> }
   > = (props) => {
     const { id, data } = props ?? {};
 
@@ -2893,14 +2895,14 @@ export const useApplyJob = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof applyJob>>,
     TError,
-    { id: number; data: BodyType<ApplyJobBody> },
+    { id: string; data: BodyType<ApplyJobBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationResult<
   Awaited<ReturnType<typeof applyJob>>,
   TError,
-  { id: number; data: BodyType<ApplyJobBody> },
+  { id: string; data: BodyType<ApplyJobBody> },
   TContext
 > => {
   return useMutation(getApplyJobMutationOptions(options));
@@ -3081,12 +3083,12 @@ export function useListApplications<
 /**
  * @summary Update application status
  */
-export const getUpdateApplicationUrl = (id: number) => {
+export const getUpdateApplicationUrl = (id: string) => {
   return `/api/applications/${id}`;
 };
 
 export const updateApplication = async (
-  id: number,
+  id: string,
   updateApplicationBody: UpdateApplicationBody,
   options?: RequestInit,
 ): Promise<JobApplication> => {
@@ -3105,14 +3107,14 @@ export const getUpdateApplicationMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof updateApplication>>,
     TError,
-    { id: number; data: BodyType<UpdateApplicationBody> },
+    { id: string; data: BodyType<UpdateApplicationBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof updateApplication>>,
   TError,
-  { id: number; data: BodyType<UpdateApplicationBody> },
+  { id: string; data: BodyType<UpdateApplicationBody> },
   TContext
 > => {
   const mutationKey = ["updateApplication"];
@@ -3126,7 +3128,7 @@ export const getUpdateApplicationMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof updateApplication>>,
-    { id: number; data: BodyType<UpdateApplicationBody> }
+    { id: string; data: BodyType<UpdateApplicationBody> }
   > = (props) => {
     const { id, data } = props ?? {};
 
@@ -3152,14 +3154,14 @@ export const useUpdateApplication = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof updateApplication>>,
     TError,
-    { id: number; data: BodyType<UpdateApplicationBody> },
+    { id: string; data: BodyType<UpdateApplicationBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationResult<
   Awaited<ReturnType<typeof updateApplication>>,
   TError,
-  { id: number; data: BodyType<UpdateApplicationBody> },
+  { id: string; data: BodyType<UpdateApplicationBody> },
   TContext
 > => {
   return useMutation(getUpdateApplicationMutationOptions(options));
@@ -3348,12 +3350,12 @@ export const useCreateAssessment = <
 /**
  * @summary Get assessment with questions
  */
-export const getGetAssessmentUrl = (id: number) => {
+export const getGetAssessmentUrl = (id: string) => {
   return `/api/assessments/${id}`;
 };
 
 export const getAssessment = async (
-  id: number,
+  id: string,
   options?: RequestInit,
 ): Promise<AssessmentDetail> => {
   return customFetch<AssessmentDetail>(getGetAssessmentUrl(id), {
@@ -3362,7 +3364,7 @@ export const getAssessment = async (
   });
 };
 
-export const getGetAssessmentQueryKey = (id: number) => {
+export const getGetAssessmentQueryKey = (id: string) => {
   return [`/api/assessments/${id}`] as const;
 };
 
@@ -3370,7 +3372,7 @@ export const getGetAssessmentQueryOptions = <
   TData = Awaited<ReturnType<typeof getAssessment>>,
   TError = ErrorType<unknown>,
 >(
-  id: number,
+  id: string,
   options?: {
     query?: UseQueryOptions<
       Awaited<ReturnType<typeof getAssessment>>,
@@ -3413,7 +3415,7 @@ export function useGetAssessment<
   TData = Awaited<ReturnType<typeof getAssessment>>,
   TError = ErrorType<unknown>,
 >(
-  id: number,
+  id: string,
   options?: {
     query?: UseQueryOptions<
       Awaited<ReturnType<typeof getAssessment>>,
@@ -3435,12 +3437,12 @@ export function useGetAssessment<
 /**
  * @summary Submit assessment answers
  */
-export const getSubmitAssessmentUrl = (id: number) => {
+export const getSubmitAssessmentUrl = (id: string) => {
   return `/api/assessments/${id}/submit`;
 };
 
 export const submitAssessment = async (
-  id: number,
+  id: string,
   submitAssessmentBody: SubmitAssessmentBody,
   options?: RequestInit,
 ): Promise<AssessmentResult> => {
@@ -3459,14 +3461,14 @@ export const getSubmitAssessmentMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof submitAssessment>>,
     TError,
-    { id: number; data: BodyType<SubmitAssessmentBody> },
+    { id: string; data: BodyType<SubmitAssessmentBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof submitAssessment>>,
   TError,
-  { id: number; data: BodyType<SubmitAssessmentBody> },
+  { id: string; data: BodyType<SubmitAssessmentBody> },
   TContext
 > => {
   const mutationKey = ["submitAssessment"];
@@ -3480,7 +3482,7 @@ export const getSubmitAssessmentMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof submitAssessment>>,
-    { id: number; data: BodyType<SubmitAssessmentBody> }
+    { id: string; data: BodyType<SubmitAssessmentBody> }
   > = (props) => {
     const { id, data } = props ?? {};
 
@@ -3506,14 +3508,14 @@ export const useSubmitAssessment = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof submitAssessment>>,
     TError,
-    { id: number; data: BodyType<SubmitAssessmentBody> },
+    { id: string; data: BodyType<SubmitAssessmentBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationResult<
   Awaited<ReturnType<typeof submitAssessment>>,
   TError,
-  { id: number; data: BodyType<SubmitAssessmentBody> },
+  { id: string; data: BodyType<SubmitAssessmentBody> },
   TContext
 > => {
   return useMutation(getSubmitAssessmentMutationOptions(options));
@@ -4235,6 +4237,96 @@ export const useAnalyzeResume = <
   TContext
 > => {
   return useMutation(getAnalyzeResumeMutationOptions(options));
+};
+
+/**
+ * @summary Upload a video resume (MP4/MOV/WEBM)
+ */
+export const getUploadVideoResumeUrl = () => {
+  return `/api/resume/video-upload`;
+};
+
+export const uploadVideoResume = async (
+  uploadVideoResumeBody: UploadVideoResumeBody,
+  options?: RequestInit,
+): Promise<UploadVideoResume201> => {
+  const formData = new FormData();
+  if (uploadVideoResumeBody.video !== undefined) {
+    formData.append(`video`, uploadVideoResumeBody.video);
+  }
+
+  return customFetch<UploadVideoResume201>(getUploadVideoResumeUrl(), {
+    ...options,
+    method: "POST",
+    body: formData,
+  });
+};
+
+export const getUploadVideoResumeMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof uploadVideoResume>>,
+    TError,
+    { data: BodyType<UploadVideoResumeBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof uploadVideoResume>>,
+  TError,
+  { data: BodyType<UploadVideoResumeBody> },
+  TContext
+> => {
+  const mutationKey = ["uploadVideoResume"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof uploadVideoResume>>,
+    { data: BodyType<UploadVideoResumeBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return uploadVideoResume(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UploadVideoResumeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof uploadVideoResume>>
+>;
+export type UploadVideoResumeMutationBody = BodyType<UploadVideoResumeBody>;
+export type UploadVideoResumeMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Upload a video resume (MP4/MOV/WEBM)
+ */
+export const useUploadVideoResume = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof uploadVideoResume>>,
+    TError,
+    { data: BodyType<UploadVideoResumeBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof uploadVideoResume>>,
+  TError,
+  { data: BodyType<UploadVideoResumeBody> },
+  TContext
+> => {
+  return useMutation(getUploadVideoResumeMutationOptions(options));
 };
 
 /**

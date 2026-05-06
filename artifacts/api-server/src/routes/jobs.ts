@@ -4,6 +4,36 @@ import { getUserIdFromToken } from "./auth";
 
 const router: IRouter = Router();
 
+// GET /applications
+router.get("/applications", async (req, res): Promise<void> => {
+  const userId = getUserIdFromToken(req.headers.authorization);
+  if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  console.log(`[DEBUG] Fetching applications for User ID: ${userId}`);
+
+  try {
+    const applications = await JobApplication.find({ userId }).sort({ appliedAt: -1 });
+    console.log(`[DEBUG] Found ${applications.length} applications in DB`);
+    
+    const populated = await Promise.all(applications.map(async (app) => {
+      const job = await Job.findById(app.jobId);
+      const obj = app.toObject();
+      if (!job) console.log(`[DEBUG] Job not found for ID: ${app.jobId}`);
+      return {
+        ...obj,
+        id: obj._id.toString(),
+        job: job ? { ...job.toObject(), id: job._id.toString() } : null
+      };
+    }));
+
+    console.log(`[DEBUG] Returning ${populated.length} populated applications`);
+    res.json(populated);
+  } catch (error) {
+    console.error("[DEBUG] Error fetching applications:", error);
+    res.status(500).json({ error: "Failed to fetch applications" });
+  }
+});
+
 // GET /jobs
 router.get("/jobs", async (req, res): Promise<void> => {
   const { type, search, page = "1", limit = "20" } = req.query as Record<string, string>;
@@ -101,23 +131,32 @@ router.post("/jobs/:id/apply", async (req, res): Promise<void> => {
   const jobId = req.params.id;
   const { coverLetter } = req.body;
 
-  const existing = await JobApplication.findOne({ userId, jobId });
-  if (existing) {
-    res.status(409).json({ error: "Already applied" });
-    return;
+  console.log(`Applying for job: ${jobId} by user: ${userId}`);
+
+  try {
+    const existing = await JobApplication.findOne({ userId, jobId });
+    if (existing) {
+      console.log(`User ${userId} already applied for job ${jobId}`);
+      res.status(409).json({ error: "Already applied" });
+      return;
+    }
+
+    const application = await JobApplication.create({
+      jobId,
+      userId,
+      coverLetter,
+      status: "pending",
+    });
+
+    await Job.findByIdAndUpdate(jobId, { $inc: { applicantCount: 1 } });
+
+    console.log(`Application created: ${application._id}`);
+    const obj = application.toObject();
+    res.status(201).json({ ...obj, id: obj._id.toString() });
+  } catch (error) {
+    console.error("Error creating job application:", error);
+    res.status(500).json({ error: "Failed to submit application" });
   }
-
-  const application = await JobApplication.create({
-    jobId,
-    userId,
-    coverLetter,
-    status: "pending",
-  });
-
-  await Job.findByIdAndUpdate(jobId, { $inc: { applicantCount: 1 } });
-
-  const obj = application.toObject();
-  res.status(201).json({ ...obj, id: obj._id.toString() });
 });
 
 export default router;
