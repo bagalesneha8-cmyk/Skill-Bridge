@@ -68,6 +68,8 @@ export default function Resume() {
           className: "bg-green-600 text-white border-none"
         });
         setSyncDialogOpen(false);
+        // Invalidate 'me' query to refresh name on dashboard/profile
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       },
       onError: (error: any) => {
         toast({ title: "Sync failed", description: error?.response?.data?.error || "Please try again.", variant: "destructive" });
