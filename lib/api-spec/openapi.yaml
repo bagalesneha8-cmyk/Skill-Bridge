@@ -191,7 +191,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "200":
           description: User skills
@@ -210,7 +210,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -224,6 +224,461 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserSkill"
+
+  /users/{id}/skills/{skillId}:
+    patch:
+      operationId: updateUserSkill
+      tags: [users]
+      summary: Update a user skill
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: skillId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddSkillBody"
+      responses:
+        "200":
+          description: Skill updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserSkill"
+    delete:
+      operationId: deleteUserSkill
+      tags: [users]
+      summary: Delete a user skill
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: skillId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Skill deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /users/{id}/education:
+    get:
+      operationId: getUserEducation
+      tags: [users]
+      summary: Get user education records
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Education list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Education"
+    post:
+      operationId: addUserEducation
+      tags: [users]
+      summary: Add education record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Education"
+      responses:
+        "201":
+          description: Education added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Education"
+
+  /users/{id}/education/{eduId}:
+    patch:
+      operationId: updateEducation
+      tags: [users]
+      summary: Update education record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: eduId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Education"
+      responses:
+        "200":
+          description: Education updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Education"
+    delete:
+      operationId: deleteEducation
+      tags: [users]
+      summary: Delete education record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: eduId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Education deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /users/{id}/projects:
+    get:
+      operationId: getUserProjects
+      tags: [users]
+      summary: Get user projects
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Project list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+    post:
+      operationId: addUserProject
+      tags: [users]
+      summary: Add project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Project"
+      responses:
+        "201":
+          description: Project added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+
+  /users/{id}/projects/{projectId}:
+    patch:
+      operationId: updateProject
+      tags: [users]
+      summary: Update project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Project"
+      responses:
+        "200":
+          description: Project updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    delete:
+      operationId: deleteProject
+      tags: [users]
+      summary: Delete project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Project deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /users/{id}/certifications:
+    get:
+      operationId: getUserCertifications
+      tags: [users]
+      summary: Get user certifications
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Certification list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Certification"
+    post:
+      operationId: addUserCertification
+      tags: [users]
+      summary: Add certification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Certification"
+      responses:
+        "201":
+          description: Certification added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Certification"
+
+  /users/{id}/certifications/{certId}:
+    patch:
+      operationId: updateCertification
+      tags: [users]
+      summary: Update certification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: certId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Certification"
+      responses:
+        "200":
+          description: Certification updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Certification"
+    delete:
+      operationId: deleteCertification
+      tags: [users]
+      summary: Delete certification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: certId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Certification deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /users/{id}/experience:
+    get:
+      operationId: getUserExperience
+      tags: [users]
+      summary: Get user experience
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Experience list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Experience"
+    post:
+      operationId: addUserExperience
+      tags: [users]
+      summary: Add experience
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Experience"
+      responses:
+        "201":
+          description: Experience added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Experience"
+
+  /users/{id}/experience/{expId}:
+    patch:
+      operationId: updateExperience
+      tags: [users]
+      summary: Update experience
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: expId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Experience"
+      responses:
+        "200":
+          description: Experience updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Experience"
+    delete:
+      operationId: deleteExperience
+      tags: [users]
+      summary: Delete experience
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: expId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Experience deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /users/{id}/analytics:
+    get:
+      operationId: getUserAnalytics
+      tags: [users]
+      summary: Get user profile analytics
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Profile analytics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileAnalytics"
 
   # JOBS
   /jobs:
@@ -475,7 +930,7 @@ paths:
       summary: Get assessment results for current user
       responses:
         "200":
-          description: Assessment results
+          description: List of assessment results
           content:
             application/json:
               schema:
@@ -483,7 +938,6 @@ paths:
                 items:
                   $ref: "#/components/schemas/AssessmentResult"
 
-  # LEARNING
   /learning/recommendations:
     get:
       operationId: getLearningRecommendations
@@ -547,31 +1001,74 @@ paths:
     get:
       operationId: getResume
       tags: [resume]
-      summary: Get current user resume info
+      summary: Get current user resume versions
       responses:
         "200":
-          description: Resume info
+          description: List of resumes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Resume"
+  
+  /resume/upload:
+    post:
+      operationId: uploadResumeFile
+      tags: [resume]
+      summary: Upload a resume file (PDF/DOCX)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                resume:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Resume uploaded and parsed
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Resume"
+
+  /resume/sync:
     post:
-      operationId: uploadResume
+      operationId: syncResumeData
       tags: [resume]
-      summary: Upload/create resume data
+      summary: Sync parsed resume data to profile
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateResumeBody"
+              type: object
+              properties:
+                profile:
+                  type: object
+                skills:
+                  type: array
+                  items:
+                    type: string
+                education:
+                  type: array
+                  items:
+                    type: object
+                experience:
+                  type: array
+                  items:
+                    type: object
       responses:
-        "201":
-          description: Resume created
+        "200":
+          description: Profile synced
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Resume"
+                type: object
+                properties:
+                  message:
+                    type: string
 
   /resume/analyze:
     post:
@@ -1077,6 +1574,12 @@ components:
           type: string
         location:
           type: string
+        phone:
+          type: string
+        socialLinks:
+          $ref: "#/components/schemas/SocialLinks"
+        privacy:
+          $ref: "#/components/schemas/PrivacySettings"
         xp:
           type: integer
         level:
@@ -1086,6 +1589,28 @@ components:
         createdAt:
           type: string
       required: [id, name, email, role]
+
+    SocialLinks:
+      type: object
+      properties:
+        linkedin:
+          type: string
+        github:
+          type: string
+        portfolio:
+          type: string
+
+    PrivacySettings:
+      type: object
+      properties:
+        isPublic:
+          type: boolean
+        showResume:
+          type: boolean
+        showProjects:
+          type: boolean
+        showContact:
+          type: boolean
 
     UpdateUserBody:
       type: object
@@ -1100,6 +1625,12 @@ components:
           type: string
         avatar:
           type: string
+        phone:
+          type: string
+        socialLinks:
+          $ref: "#/components/schemas/SocialLinks"
+        privacy:
+          $ref: "#/components/schemas/PrivacySettings"
 
     UsersListResponse:
       type: object
@@ -1125,12 +1656,155 @@ components:
           type: string
         skill:
           type: string
+        category:
+          type: string
+          enum: ["Programming Languages", "Web Development", "AI/ML", "UI/UX", "Cloud Computing", "Communication Skills", "Other"]
         level:
           type: string
           enum: [beginner, intermediate, advanced, expert]
         verified:
           type: boolean
       required: [id, userId, skill, level]
+
+    Education:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        institution:
+          type: string
+        degree:
+          type: string
+        branch:
+          type: string
+        cgpa:
+          type: string
+        startYear:
+          type: integer
+        endYear:
+          type: integer
+        currentSemester:
+          type: string
+        achievements:
+          type: array
+          items:
+            type: string
+      required: [institution, degree]
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        technologies:
+          type: array
+          items:
+            type: string
+        isTeamProject:
+          type: boolean
+        startDate:
+          type: string
+        endDate:
+          type: string
+        githubLink:
+          type: string
+        liveDemoLink:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+      required: [title, description, technologies]
+
+    Certification:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        name:
+          type: string
+        organization:
+          type: string
+        issueDate:
+          type: string
+        expiryDate:
+          type: string
+        credentialUrl:
+          type: string
+        credentialId:
+          type: string
+        fileUrl:
+          type: string
+      required: [name, organization]
+
+    Experience:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        type:
+          type: string
+          enum: [internship, freelance, full-time, part-time]
+        position:
+          type: string
+        company:
+          type: string
+        location:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        isCurrent:
+          type: boolean
+        responsibilities:
+          type: array
+          items:
+            type: string
+      required: [type, position, company, startDate]
+
+    ProfileAnalytics:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        views:
+          type: integer
+        impressions:
+          type: integer
+        applicationStats:
+          type: object
+          properties:
+            applied:
+              type: integer
+            shortlisted:
+              type: integer
+            rejected:
+              type: integer
+        skillRankings:
+          type: array
+          items:
+            type: object
+            properties:
+              skill:
+                type: string
+              percentile:
+                type: number
+      required: [userId]
 
     AddSkillBody:
       type: object
@@ -1494,34 +2168,43 @@ components:
           type: array
           items:
             type: object
-            properties:
-              company:
-                type: string
-              role:
-                type: string
-              duration:
-                type: string
-            required: [company, role, duration]
         education:
           type: array
           items:
             type: object
-            properties:
-              institution:
-                type: string
-              degree:
-                type: string
-              year:
-                type: string
-            required: [institution, degree, year]
         extractedSkills:
           type: array
           items:
             type: string
         atsScore:
           type: number
+        isMain:
+          type: boolean
+        createdAt:
+          type: string
         updatedAt:
           type: string
+        parsedData:
+          type: object
+          properties:
+            profile:
+              type: object
+            skills:
+              type: array
+              items:
+                type: string
+            experience:
+              type: array
+              items:
+                type: object
+            education:
+              type: array
+              items:
+                type: object
+            summary:
+              type: string
+            atsScore:
+              type: number
       required: [id, userId]
 
     CreateResumeBody:

@@ -58,12 +58,14 @@ export default function Register() {
     <div className="min-h-screen bg-background flex">
       {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 bg-sidebar flex-col justify-between p-12">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <Zap className="w-4 h-4 text-white" />
+        <Link href="/">
+          <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <Zap className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-bold text-sidebar-foreground">SkillSync AI</span>
           </div>
-          <span className="font-bold text-sidebar-foreground">SkillSync AI</span>
-        </div>
+        </Link>
         <div className="space-y-6">
           <h2 className="text-sidebar-foreground text-3xl font-bold leading-tight">Your career starts<br />with a single step.</h2>
           <div className="space-y-3">

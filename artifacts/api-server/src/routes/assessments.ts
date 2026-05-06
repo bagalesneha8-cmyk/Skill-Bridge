@@ -103,4 +103,16 @@ router.post("/assessments/:id/submit", async (req, res): Promise<void> => {
   res.json({ ...resultObj, id: resultObj._id.toString(), assessment: obj });
 });
 
+// GET /assessment-results
+router.get("/assessment-results", async (req, res): Promise<void> => {
+  const userId = getUserIdFromToken(req.headers.authorization);
+  if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
+
+  const results = await AssessmentResult.find({ userId }).populate("assessmentId");
+  res.json(results.map(r => {
+    const obj = r.toObject();
+    return { ...obj, id: obj._id.toString() };
+  }));
+});
+
 export default router;

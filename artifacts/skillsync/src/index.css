@@ -59,6 +59,35 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+@layer utilities {
+  @keyframes gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .animate-gradient {
+    animation: gradient 8s ease infinite;
+  }
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+  }
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+  .glass-dark {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .glass-light {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+}
+
 :root {
   --background: 0 0% 98%;
   --foreground: 222 47% 11%;

@@ -72,106 +72,159 @@ export default function FreelanceMarketplace() {
   const projects = (data as { projects?: unknown[] })?.projects ?? [];
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Freelance Marketplace</h1>
-          <p className="text-muted-foreground text-sm mt-1">Browse projects and place competitive bids.</p>
-        </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2" data-testid="button-post-project">
-              <Plus className="w-4 h-4" /> Post Project
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Post a New Project</DialogTitle>
-            </DialogHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField control={form.control} name="title" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Project Title</FormLabel>
-                    <FormControl><Input {...field} placeholder="e.g., E-Commerce Dashboard" data-testid="input-project-title" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="description" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl><Textarea {...field} rows={4} placeholder="Describe the project requirements..." data-testid="input-project-description" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField control={form.control} name="budget" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Budget</FormLabel>
-                      <FormControl><Input {...field} placeholder="$1,000 - $3,000" data-testid="input-project-budget" /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                  <FormField control={form.control} name="deadline" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Deadline (optional)</FormLabel>
-                      <FormControl><Input {...field} type="date" data-testid="input-project-deadline" /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                </div>
-                <FormField control={form.control} name="skills" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Required Skills (comma-separated)</FormLabel>
-                    <FormControl><Input {...field} placeholder="React, TypeScript, Node.js" data-testid="input-project-skills" /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <Button type="submit" className="w-full" disabled={createMutation.isPending} data-testid="button-submit-project">
-                  {createMutation.isPending ? "Posting..." : "Post Project"}
-                </Button>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+    <div className="min-h-screen bg-white selection:bg-primary selection:text-white relative">
+      {/* Universal Background Elements */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
+        <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[20%] right-[-5%] w-[30%] h-[40%] bg-blue-500/5 rounded-full blur-[100px]" />
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
-        {isLoading ? (
-          Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-52" />)
-        ) : (projects as Array<{ id: number; title: string; description: string; budget: string; skills: string[]; deadline?: string; status: string; bidCount: number }>).map((project, i) => (
-          <motion.div
-            key={project.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.07 }}
-          >
-            <Link href={`/freelance/${project.id}`}>
-              <div className="p-5 border border-border rounded-lg bg-card hover:border-primary/40 hover:shadow-sm transition-all cursor-pointer h-full" data-testid={`card-project-${project.id}`}>
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <h3 className="font-semibold leading-tight flex-1">{project.title}</h3>
-                  <Badge variant="outline" className={cn("text-xs capitalize border flex-shrink-0", statusColor[project.status])}>
-                    {project.status.replace("_", " ")}
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground line-clamp-3 mb-3">{project.description}</p>
-
-                <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
-                  <span className="flex items-center gap-1"><DollarSign className="w-3 h-3" />{project.budget}</span>
-                  {project.deadline && <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{project.deadline}</span>}
-                  <span className="flex items-center gap-1"><Users className="w-3 h-3" />{project.bidCount} bids</span>
-                </div>
-
-                <div className="flex flex-wrap gap-1">
-                  {project.skills.slice(0, 4).map(s => (
-                    <span key={s} className="text-xs bg-secondary px-1.5 py-0.5 rounded">{s}</span>
-                  ))}
-                  {project.skills.length > 4 && <span className="text-xs text-muted-foreground">+{project.skills.length - 4}</span>}
-                </div>
+      <div className="relative z-10 p-8 space-y-12 max-w-7xl mx-auto">
+        {/* Hero Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-[3rem] bg-[#030303] text-white p-10 md:p-16 shadow-2xl shadow-primary/10"
+        >
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
+          
+          <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-10">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-primary/20 text-primary text-[10px] uppercase tracking-[0.2em] font-black px-4 py-1.5 rounded-full mb-6 border border-primary/20">
+                Gig Economy
               </div>
-            </Link>
-          </motion.div>
-        ))}
+              <h1 className="text-5xl md:text-6xl font-black tracking-tighter leading-none">
+                Freelance <span className="text-primary">Marketplace</span>
+              </h1>
+              <p className="text-white/40 text-lg font-medium mt-4">
+                High-impact projects, verifiable payments, and direct client access.
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger asChild>
+                  <Button className="h-14 px-8 rounded-full bg-primary hover:bg-white hover:text-primary shadow-xl shadow-primary/20 font-black gap-3 transition-all hover:scale-105 active:scale-95" data-testid="button-post-project">
+                    <Plus className="w-5 h-5" /> Post Project
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-xl rounded-[3rem] p-10 border-black/5">
+                  <DialogHeader>
+                    <DialogTitle className="text-3xl font-black tracking-tight">Launch a <span className="text-primary">New Venture.</span></DialogTitle>
+                  </DialogHeader>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-8">
+                      <FormField control={form.control} name="title" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[10px] font-black uppercase tracking-widest text-black/30">Project Identity</FormLabel>
+                          <FormControl><Input {...field} placeholder="e.g., Enterprise SaaS Dashboard" className="h-14 rounded-2xl border-black/5 bg-black/[0.02] font-bold" data-testid="input-project-title" /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <FormField control={form.control} name="description" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[10px] font-black uppercase tracking-widest text-black/30">Execution Details</FormLabel>
+                          <FormControl><Textarea {...field} rows={5} placeholder="Define the mission, technical stack, and outcomes..." className="rounded-3xl border-black/5 bg-black/[0.02] font-medium leading-relaxed" data-testid="input-project-description" /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <div className="grid grid-cols-2 gap-6">
+                        <FormField control={form.control} name="budget" render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-[10px] font-black uppercase tracking-widest text-black/30">Capital Allocation</FormLabel>
+                            <FormControl><Input {...field} placeholder="$5k - $10k" className="h-14 rounded-2xl border-black/5 bg-black/[0.02] font-bold" data-testid="input-project-budget" /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                        <FormField control={form.control} name="deadline" render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-[10px] font-black uppercase tracking-widest text-black/30">Target Launch</FormLabel>
+                            <FormControl><Input {...field} type="date" className="h-14 rounded-2xl border-black/5 bg-black/[0.02] font-bold" data-testid="input-project-deadline" /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                      </div>
+                      <FormField control={form.control} name="skills" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-[10px] font-black uppercase tracking-widest text-black/30">Expertise Stack (comma-separated)</FormLabel>
+                          <FormControl><Input {...field} placeholder="Next.js, Tailwind, AWS, AI" className="h-14 rounded-2xl border-black/5 bg-black/[0.02] font-bold" data-testid="input-project-skills" /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <Button type="submit" className="w-full h-16 rounded-[2rem] bg-[#030303] hover:bg-primary text-white font-black text-xl transition-all shadow-2xl" disabled={createMutation.isPending} data-testid="button-submit-project">
+                        {createMutation.isPending ? "Transmitting..." : "Initiate Project"}
+                      </Button>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Project grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-72 rounded-[3rem]" />)
+          ) : (projects as Array<{ id: number; title: string; description: string; budget: string; skills: string[]; deadline?: string; status: string; bidCount: number }>).map((project, i) => (
+            <motion.div
+              key={project.id}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+            >
+              <Link href={`/freelance/${project.id}`}>
+                <div
+                  className="group p-10 rounded-[3rem] border border-black/5 bg-white hover:bg-[#030303] transition-all duration-500 hover:shadow-[0_20px_60px_rgba(0,0,0,0.1)] relative overflow-hidden h-full flex flex-col justify-between"
+                  data-testid={`card-project-${project.id}`}
+                >
+                  <div className="absolute top-0 right-0 p-10 opacity-[0.03] group-hover:opacity-10 transition-opacity">
+                    <Code2 className="w-32 h-32 text-primary" />
+                  </div>
+
+                  <div>
+                    <div className="flex items-start justify-between mb-8 relative z-10">
+                      <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-primary transition-colors border border-primary/10">
+                        <Code2 className="w-8 h-8 text-primary group-hover:text-white transition-colors" />
+                      </div>
+                      <Badge variant="outline" className={cn(
+                        "rounded-full uppercase tracking-widest text-[10px] font-black px-4 py-1.5",
+                        project.status === "open" ? "border-green-500/20 text-green-600 bg-green-50/50 group-hover:bg-green-500 group-hover:text-white group-hover:border-green-500" : "border-black/10 group-hover:border-white/20 group-hover:text-white"
+                      )}>
+                        {project.status.replace("_", " ")}
+                      </Badge>
+                    </div>
+
+                    <h3 className="text-2xl md:text-3xl font-black mb-4 group-hover:text-white transition-colors tracking-tight leading-tight">{project.title}</h3>
+                    <p className="text-black/40 text-lg font-medium mb-8 group-hover:text-white/50 transition-colors leading-relaxed line-clamp-3">{project.description}</p>
+                  </div>
+
+                  <div className="space-y-8">
+                    <div className="flex items-center gap-8 text-[10px] font-black uppercase tracking-widest text-black/30 group-hover:text-white/30">
+                      <span className="flex items-center gap-2.5"><DollarSign className="w-4 h-4 text-primary" />{project.budget}</span>
+                      {project.deadline && <span className="flex items-center gap-2.5"><Clock className="w-4 h-4" />{project.deadline}</span>}
+                      <span className="flex items-center gap-2.5"><Users className="w-4 h-4" />{project.bidCount} Bids</span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {project.skills.slice(0, 5).map(s => (
+                        <span key={s} className="text-[10px] font-black uppercase tracking-widest bg-black/5 group-hover:bg-white/10 px-3 py-1.5 rounded-full group-hover:text-white transition-colors">{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+
+        {!isLoading && projects.length === 0 && (
+          <div className="text-center py-32 glass-light rounded-[4rem] border-dashed border-2 border-black/5">
+            <Code2 className="w-20 h-20 mx-auto mb-6 text-black/5" />
+            <h3 className="text-2xl font-black mb-2">The marketplace is quiet</h3>
+            <p className="text-black/40 font-bold uppercase tracking-widest text-xs">Be the first to post a high-impact project.</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -8,8 +8,9 @@ import { GraduationCap, Clock, Users, Plus, ChevronRight, FileText } from "lucid
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
@@ -62,86 +63,134 @@ export default function CollegeForms() {
   const canCreate = user?.role === "faculty" || user?.role === "admin";
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">College Forms</h1>
-          <p className="text-muted-foreground text-sm mt-1">Submit internship NOCs, leave requests, hackathon approvals, and more.</p>
-        </div>
-        <div className="flex gap-2">
-          <Link href="/college/submissions">
-            <Button variant="outline" className="gap-2" data-testid="button-my-submissions">
-              <FileText className="w-4 h-4" /> My Submissions
-            </Button>
-          </Link>
-          {canCreate && (
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
-                <Button className="gap-2" data-testid="button-create-form">
-                  <Plus className="w-4 h-4" /> Create Form
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader><DialogTitle>Create New Form</DialogTitle></DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Title</label>
-                    <Input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Form title" data-testid="input-form-title" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Type</label>
-                    <Select value={newType} onValueChange={setNewType}>
-                      <SelectTrigger data-testid="select-form-type"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {formTypes.map(t => <SelectItem key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Description</label>
-                    <Textarea value={newDesc} onChange={e => setNewDesc(e.target.value)} rows={3} placeholder="Describe the form purpose..." data-testid="input-form-description" />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Deadline (optional)</label>
-                    <Input type="date" value={newDeadline} onChange={e => setNewDeadline(e.target.value)} data-testid="input-form-deadline" />
-                  </div>
-                  <Button onClick={handleCreate} disabled={createMutation.isPending} className="w-full" data-testid="button-submit-form">
-                    {createMutation.isPending ? "Creating..." : "Create Form"}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          )}
-        </div>
+    <div className="min-h-screen bg-white selection:bg-primary selection:text-white relative">
+      {/* Universal Background Elements */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
+        <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[20%] right-[-5%] w-[30%] h-[40%] bg-blue-500/5 rounded-full blur-[100px]" />
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {isLoading ? Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-44" />) :
-          (Array.isArray(forms) ? forms : []).map((form: { id: number; title: string; type: string; description: string; deadline?: string; status: string; submissionCount: number }, i: number) => (
-            <motion.div key={form.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
-              <div className="p-5 border border-border rounded-lg bg-card hover:border-primary/40 transition-all h-full" data-testid={`card-form-${form.id}`}>
-                <div className="flex items-start gap-2 mb-3">
-                  <Badge variant="outline" className={cn("text-xs capitalize border flex-shrink-0", typeColor[form.type])}>
-                    {form.type}
-                  </Badge>
-                  <Badge variant="outline" className="text-xs ml-auto flex-shrink-0">{form.status}</Badge>
-                </div>
-                <h3 className="font-semibold mb-2 leading-tight">{form.title}</h3>
-                <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{form.description}</p>
-                <div className="flex items-center gap-3 text-xs text-muted-foreground mb-4">
-                  {form.deadline && <span className="flex items-center gap-1"><Clock className="w-3 h-3" />Due: {form.deadline}</span>}
-                  <span className="flex items-center gap-1"><Users className="w-3 h-3" />{form.submissionCount} submissions</span>
-                </div>
-                {form.status === "open" && (
-                  <Link href={`/college/submissions`}>
-                    <Button size="sm" variant="outline" className="w-full gap-1 text-xs" data-testid={`button-apply-form-${form.id}`}>
-                      Submit Application <ChevronRight className="w-3 h-3" />
-                    </Button>
-                  </Link>
-                )}
+      <div className="relative z-10 p-8 space-y-12 max-w-7xl mx-auto">
+        {/* Hero Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-[3rem] bg-[#030303] text-white p-10 md:p-16 shadow-2xl shadow-primary/10"
+        >
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
+          
+          <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-10">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-primary/20 text-primary text-[10px] uppercase tracking-[0.2em] font-black px-4 py-1.5 rounded-full mb-6 border border-primary/20">
+                Administrative Portal
               </div>
+              <h1 className="text-5xl md:text-6xl font-black tracking-tighter leading-none">
+                College <span className="text-primary">Forms</span>
+              </h1>
+              <p className="text-white/40 text-lg font-medium mt-4">
+                Submit internship NOCs, leave requests, and academic approvals.
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <Link href="/college/submissions">
+                <Button variant="outline" className="h-14 px-8 rounded-full border-white/10 hover:bg-white/5 backdrop-blur-md font-bold text-white gap-3">
+                  <FileText className="w-5 h-5" /> My Submissions
+                </Button>
+              </Link>
+              {canCreate && (
+                <Dialog open={open} onOpenChange={setOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="h-14 px-8 rounded-full bg-primary hover:bg-white hover:text-primary shadow-xl shadow-primary/20 font-black gap-3 transition-all hover:scale-105 active:scale-95" data-testid="button-create-form">
+                      <Plus className="w-5 h-5" /> Create Form
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="rounded-[2rem] border-black/10 max-w-xl">
+                    <DialogHeader><DialogTitle className="text-2xl font-black tracking-tight">Generate Academic Form</DialogTitle></DialogHeader>
+                    <div className="space-y-6 py-6">
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-black/40">Form Identity</Label>
+                        <Input className="h-12 rounded-xl border-black/5 bg-black/[0.02] font-bold" value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="e.g. Internship NOC Request" data-testid="input-form-title" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-black/40">Classification</Label>
+                          <Select value={newType} onValueChange={setNewType}>
+                            <SelectTrigger className="h-12 rounded-xl border-black/5 bg-black/[0.02] font-bold"><SelectValue /></SelectTrigger>
+                            <SelectContent className="rounded-xl">
+                              {formTypes.map(t => <SelectItem key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-black/40">Deadline</Label>
+                          <Input type="date" className="h-12 rounded-xl border-black/5 bg-black/[0.02] font-bold" value={newDeadline} onChange={e => setNewDeadline(e.target.value)} />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-black/40">Requirements & Instructions</Label>
+                        <Textarea className="rounded-xl border-black/5 bg-black/[0.02] font-bold min-h-[120px]" value={newDesc} onChange={e => setNewDesc(e.target.value)} rows={4} placeholder="Describe the purpose and required documentation..." />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button onClick={handleCreate} disabled={createMutation.isPending} className="h-12 px-8 rounded-full bg-primary font-black w-full" data-testid="button-submit-form">
+                        {createMutation.isPending ? "Generating..." : "Generate Form"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
+            </div>
+          </div>
+        </motion.div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {isLoading ? (
+            Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-64 rounded-[2.5rem]" />)
+          ) : (forms as any[])?.map((form, i) => (
+            <motion.div
+              key={form.id}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+            >
+              <Link href={`/college/forms/${form.id}`}>
+                <div className="group p-8 rounded-[2.5rem] border border-black/5 bg-white hover:bg-[#030303] transition-all duration-500 hover:shadow-[0_20px_60px_rgba(0,0,0,0.1)] relative overflow-hidden h-full flex flex-col justify-between">
+                  <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-10 transition-opacity">
+                    <GraduationCap className="w-24 h-24 text-primary" />
+                  </div>
+
+                  <div>
+                    <div className="flex items-start justify-between mb-6 relative z-10">
+                      <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-primary transition-colors border border-primary/10">
+                        <GraduationCap className="w-6 h-6 text-primary group-hover:text-white transition-colors" />
+                      </div>
+                      <Badge variant="outline" className={cn("rounded-full uppercase tracking-widest text-[10px] font-black px-3 py-1", typeColor[form.type as keyof typeof typeColor] || "border-black/10 group-hover:border-white/20 group-hover:text-white")}>
+                        {form.type}
+                      </Badge>
+                    </div>
+
+                    <h3 className="text-xl font-black mb-2 group-hover:text-white transition-colors tracking-tight">{form.title}</h3>
+                    <p className="text-black/40 font-medium text-sm mb-6 group-hover:text-white/40 transition-colors line-clamp-2">{form.description}</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-black/30 group-hover:text-white/30">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-3.5 h-3.5" />
+                        {form.deadline ? `Deadline: ${new Date(form.deadline).toLocaleDateString()}` : "No Deadline"}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest text-primary group-hover:text-white transition-colors">
+                      <span>Access Form</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
             </motion.div>
           ))}
+        </div>
       </div>
     </div>
   );

@@ -46,12 +46,14 @@ export default function Login() {
     <div className="min-h-screen bg-background flex">
       {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 bg-sidebar flex-col justify-between p-12">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <Zap className="w-4 h-4 text-white" />
+        <Link href="/">
+          <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <Zap className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-bold text-sidebar-foreground">SkillSync AI</span>
           </div>
-          <span className="font-bold text-sidebar-foreground">SkillSync AI</span>
-        </div>
+        </Link>
         <div>
           <blockquote className="text-sidebar-foreground/80 text-xl leading-relaxed mb-6">
             "SkillSync AI helped me land my internship at Google within 3 weeks. The AI job matching is eerily accurate."

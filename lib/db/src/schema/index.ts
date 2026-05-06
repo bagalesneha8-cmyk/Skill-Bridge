@@ -1,5 +1,6 @@
 export * from "./users";
 export * from "./skills";
+export * from "./profile";
 export * from "./jobs";
 export * from "./assessments";
 export * from "./learning";

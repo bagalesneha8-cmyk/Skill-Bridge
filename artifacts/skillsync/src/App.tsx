@@ -23,6 +23,7 @@ import CollegeAnnouncements from "@/pages/college-announcements";
 import Leaderboard from "@/pages/leaderboard";
 import Admin from "@/pages/admin";
 import Profile from "@/pages/profile";
+import Portfolio from "@/pages/portfolio";
 import Layout from "@/components/layout";
 
 const queryClient = new QueryClient({
@@ -70,6 +71,7 @@ function Router() {
       <Route path="/leaderboard"><ProtectedRoute component={Leaderboard} /></Route>
       <Route path="/admin"><ProtectedRoute component={Admin} /></Route>
       <Route path="/profile"><ProtectedRoute component={Profile} /></Route>
+      <Route path="/portfolio/:id" component={Portfolio} />
       <Route component={NotFound} />
     </Switch>
   );

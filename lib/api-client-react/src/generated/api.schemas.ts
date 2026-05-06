@@ -47,6 +47,19 @@ export const UserRole = {
   admin: "admin",
 } as const;
 
+export interface SocialLinks {
+  linkedin?: string;
+  github?: string;
+  portfolio?: string;
+}
+
+export interface PrivacySettings {
+  isPublic?: boolean;
+  showResume?: boolean;
+  showProjects?: boolean;
+  showContact?: boolean;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -56,6 +69,9 @@ export interface User {
   bio?: string;
   institution?: string;
   location?: string;
+  phone?: string;
+  socialLinks?: SocialLinks;
+  privacy?: PrivacySettings;
   xp?: number;
   level?: number;
   streak?: number;
@@ -73,6 +89,9 @@ export interface UpdateUserBody {
   institution?: string;
   location?: string;
   avatar?: string;
+  phone?: string;
+  socialLinks?: SocialLinks;
+  privacy?: PrivacySettings;
 }
 
 export interface UsersListResponse {
@@ -81,6 +100,19 @@ export interface UsersListResponse {
   page: number;
   limit: number;
 }
+
+export type UserSkillCategory =
+  (typeof UserSkillCategory)[keyof typeof UserSkillCategory];
+
+export const UserSkillCategory = {
+  Programming_Languages: "Programming Languages",
+  Web_Development: "Web Development",
+  "AI/ML": "AI/ML",
+  "UI/UX": "UI/UX",
+  Cloud_Computing: "Cloud Computing",
+  Communication_Skills: "Communication Skills",
+  Other: "Other",
+} as const;
 
 export type UserSkillLevel =
   (typeof UserSkillLevel)[keyof typeof UserSkillLevel];
@@ -96,8 +128,91 @@ export interface UserSkill {
   id: string;
   userId: string;
   skill: string;
+  category?: UserSkillCategory;
   level: UserSkillLevel;
   verified?: boolean;
+}
+
+export interface Education {
+  id?: string;
+  userId?: string;
+  institution: string;
+  degree: string;
+  branch?: string;
+  cgpa?: string;
+  startYear?: number;
+  endYear?: number;
+  currentSemester?: string;
+  achievements?: string[];
+}
+
+export interface Project {
+  id?: string;
+  userId?: string;
+  title: string;
+  description: string;
+  technologies: string[];
+  isTeamProject?: boolean;
+  startDate?: string;
+  endDate?: string;
+  githubLink?: string;
+  liveDemoLink?: string;
+  images?: string[];
+}
+
+export interface Certification {
+  id?: string;
+  userId?: string;
+  name: string;
+  organization: string;
+  issueDate?: string;
+  expiryDate?: string;
+  credentialUrl?: string;
+  credentialId?: string;
+  fileUrl?: string;
+}
+
+export type ExperienceType =
+  (typeof ExperienceType)[keyof typeof ExperienceType];
+
+export const ExperienceType = {
+  internship: "internship",
+  freelance: "freelance",
+  "full-time": "full-time",
+  "part-time": "part-time",
+} as const;
+
+export interface Experience {
+  id?: string;
+  userId?: string;
+  type: ExperienceType;
+  position: string;
+  company: string;
+  location?: string;
+  startDate: string;
+  endDate?: string;
+  isCurrent?: boolean;
+  responsibilities?: string[];
+}
+
+export type ProfileAnalyticsApplicationStats = {
+  applied?: number;
+  shortlisted?: number;
+  rejected?: number;
+};
+
+export type ProfileAnalyticsSkillRankingsItem = {
+  skill?: string;
+  percentile?: number;
+};
+
+export interface ProfileAnalytics {
+  id?: string;
+  userId: string;
+  views?: number;
+  impressions?: number;
+  applicationStats?: ProfileAnalyticsApplicationStats;
+  skillRankings?: ProfileAnalyticsSkillRankingsItem[];
 }
 
 export type AddSkillBodyLevel =
@@ -391,16 +506,23 @@ export interface UpdateLearningProgressBody {
   recommendationId: string;
 }
 
-export type ResumeExperienceItem = {
-  company: string;
-  role: string;
-  duration: string;
-};
+export type ResumeExperienceItem = { [key: string]: unknown };
 
-export type ResumeEducationItem = {
-  institution: string;
-  degree: string;
-  year: string;
+export type ResumeEducationItem = { [key: string]: unknown };
+
+export type ResumeParsedDataProfile = { [key: string]: unknown };
+
+export type ResumeParsedDataExperienceItem = { [key: string]: unknown };
+
+export type ResumeParsedDataEducationItem = { [key: string]: unknown };
+
+export type ResumeParsedData = {
+  profile?: ResumeParsedDataProfile;
+  skills?: string[];
+  experience?: ResumeParsedDataExperienceItem[];
+  education?: ResumeParsedDataEducationItem[];
+  summary?: string;
+  atsScore?: number;
 };
 
 export interface Resume {
@@ -412,7 +534,10 @@ export interface Resume {
   education?: ResumeEducationItem[];
   extractedSkills?: string[];
   atsScore?: number;
+  isMain?: boolean;
+  createdAt?: string;
   updatedAt?: string;
+  parsedData?: ResumeParsedData;
 }
 
 export type CreateResumeBodyExperienceItem = {
@@ -795,6 +920,27 @@ export type ListApplicationsParams = {
 
 export type ListAssessmentsParams = {
   category?: string;
+};
+
+export type UploadResumeFileBody = {
+  resume?: Blob;
+};
+
+export type SyncResumeDataBodyProfile = { [key: string]: unknown };
+
+export type SyncResumeDataBodyEducationItem = { [key: string]: unknown };
+
+export type SyncResumeDataBodyExperienceItem = { [key: string]: unknown };
+
+export type SyncResumeDataBody = {
+  profile?: SyncResumeDataBodyProfile;
+  skills?: string[];
+  education?: SyncResumeDataBodyEducationItem[];
+  experience?: SyncResumeDataBodyExperienceItem[];
+};
+
+export type SyncResumeData200 = {
+  message?: string;
 };
 
 export type ListFreelanceProjectsParams = {

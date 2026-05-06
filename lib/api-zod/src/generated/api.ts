@@ -55,6 +55,22 @@ export const LoginResponse = zod.object({
     bio: zod.string().optional(),
     institution: zod.string().optional(),
     location: zod.string().optional(),
+    phone: zod.string().optional(),
+    socialLinks: zod
+      .object({
+        linkedin: zod.string().optional(),
+        github: zod.string().optional(),
+        portfolio: zod.string().optional(),
+      })
+      .optional(),
+    privacy: zod
+      .object({
+        isPublic: zod.boolean().optional(),
+        showResume: zod.boolean().optional(),
+        showProjects: zod.boolean().optional(),
+        showContact: zod.boolean().optional(),
+      })
+      .optional(),
     xp: zod.number().optional(),
     level: zod.number().optional(),
     streak: zod.number().optional(),
@@ -88,6 +104,22 @@ export const GetMeResponse = zod.object({
   bio: zod.string().optional(),
   institution: zod.string().optional(),
   location: zod.string().optional(),
+  phone: zod.string().optional(),
+  socialLinks: zod
+    .object({
+      linkedin: zod.string().optional(),
+      github: zod.string().optional(),
+      portfolio: zod.string().optional(),
+    })
+    .optional(),
+  privacy: zod
+    .object({
+      isPublic: zod.boolean().optional(),
+      showResume: zod.boolean().optional(),
+      showProjects: zod.boolean().optional(),
+      showContact: zod.boolean().optional(),
+    })
+    .optional(),
   xp: zod.number().optional(),
   level: zod.number().optional(),
   streak: zod.number().optional(),
@@ -120,6 +152,22 @@ export const ListUsersResponse = zod.object({
       bio: zod.string().optional(),
       institution: zod.string().optional(),
       location: zod.string().optional(),
+      phone: zod.string().optional(),
+      socialLinks: zod
+        .object({
+          linkedin: zod.string().optional(),
+          github: zod.string().optional(),
+          portfolio: zod.string().optional(),
+        })
+        .optional(),
+      privacy: zod
+        .object({
+          isPublic: zod.boolean().optional(),
+          showResume: zod.boolean().optional(),
+          showProjects: zod.boolean().optional(),
+          showContact: zod.boolean().optional(),
+        })
+        .optional(),
       xp: zod.number().optional(),
       level: zod.number().optional(),
       streak: zod.number().optional(),
@@ -153,6 +201,22 @@ export const GetUserResponse = zod.object({
   bio: zod.string().optional(),
   institution: zod.string().optional(),
   location: zod.string().optional(),
+  phone: zod.string().optional(),
+  socialLinks: zod
+    .object({
+      linkedin: zod.string().optional(),
+      github: zod.string().optional(),
+      portfolio: zod.string().optional(),
+    })
+    .optional(),
+  privacy: zod
+    .object({
+      isPublic: zod.boolean().optional(),
+      showResume: zod.boolean().optional(),
+      showProjects: zod.boolean().optional(),
+      showContact: zod.boolean().optional(),
+    })
+    .optional(),
   xp: zod.number().optional(),
   level: zod.number().optional(),
   streak: zod.number().optional(),
@@ -172,6 +236,22 @@ export const UpdateUserBody = zod.object({
   institution: zod.string().optional(),
   location: zod.string().optional(),
   avatar: zod.string().optional(),
+  phone: zod.string().optional(),
+  socialLinks: zod
+    .object({
+      linkedin: zod.string().optional(),
+      github: zod.string().optional(),
+      portfolio: zod.string().optional(),
+    })
+    .optional(),
+  privacy: zod
+    .object({
+      isPublic: zod.boolean().optional(),
+      showResume: zod.boolean().optional(),
+      showProjects: zod.boolean().optional(),
+      showContact: zod.boolean().optional(),
+    })
+    .optional(),
 });
 
 export const UpdateUserResponse = zod.object({
@@ -189,6 +269,22 @@ export const UpdateUserResponse = zod.object({
   bio: zod.string().optional(),
   institution: zod.string().optional(),
   location: zod.string().optional(),
+  phone: zod.string().optional(),
+  socialLinks: zod
+    .object({
+      linkedin: zod.string().optional(),
+      github: zod.string().optional(),
+      portfolio: zod.string().optional(),
+    })
+    .optional(),
+  privacy: zod
+    .object({
+      isPublic: zod.boolean().optional(),
+      showResume: zod.boolean().optional(),
+      showProjects: zod.boolean().optional(),
+      showContact: zod.boolean().optional(),
+    })
+    .optional(),
   xp: zod.number().optional(),
   level: zod.number().optional(),
   streak: zod.number().optional(),
@@ -199,13 +295,24 @@ export const UpdateUserResponse = zod.object({
  * @summary Get user skills
  */
 export const GetUserSkillsParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const GetUserSkillsResponseItem = zod.object({
   id: zod.string(),
   userId: zod.string(),
   skill: zod.string(),
+  category: zod
+    .enum([
+      "Programming Languages",
+      "Web Development",
+      "AI/ML",
+      "UI/UX",
+      "Cloud Computing",
+      "Communication Skills",
+      "Other",
+    ])
+    .optional(),
   level: zod.enum(["beginner", "intermediate", "advanced", "expert"]),
   verified: zod.boolean().optional(),
 });
@@ -215,12 +322,437 @@ export const GetUserSkillsResponse = zod.array(GetUserSkillsResponseItem);
  * @summary Add a skill to user profile
  */
 export const AddUserSkillParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const AddUserSkillBody = zod.object({
   skill: zod.string(),
   level: zod.enum(["beginner", "intermediate", "advanced", "expert"]),
+});
+
+/**
+ * @summary Update a user skill
+ */
+export const UpdateUserSkillParams = zod.object({
+  id: zod.coerce.string(),
+  skillId: zod.coerce.string(),
+});
+
+export const UpdateUserSkillBody = zod.object({
+  skill: zod.string(),
+  level: zod.enum(["beginner", "intermediate", "advanced", "expert"]),
+});
+
+export const UpdateUserSkillResponse = zod.object({
+  id: zod.string(),
+  userId: zod.string(),
+  skill: zod.string(),
+  category: zod
+    .enum([
+      "Programming Languages",
+      "Web Development",
+      "AI/ML",
+      "UI/UX",
+      "Cloud Computing",
+      "Communication Skills",
+      "Other",
+    ])
+    .optional(),
+  level: zod.enum(["beginner", "intermediate", "advanced", "expert"]),
+  verified: zod.boolean().optional(),
+});
+
+/**
+ * @summary Delete a user skill
+ */
+export const DeleteUserSkillParams = zod.object({
+  id: zod.coerce.string(),
+  skillId: zod.coerce.string(),
+});
+
+export const DeleteUserSkillResponse = zod.object({
+  message: zod.string(),
+});
+
+/**
+ * @summary Get user education records
+ */
+export const GetUserEducationParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetUserEducationResponseItem = zod.object({
+  id: zod.string().optional(),
+  userId: zod.string().optional(),
+  institution: zod.string(),
+  degree: zod.string(),
+  branch: zod.string().optional(),
+  cgpa: zod.string().optional(),
+  startYear: zod.number().optional(),
+  endYear: zod.number().optional(),
+  currentSemester: zod.string().optional(),
+  achievements: zod.array(zod.string()).optional(),
+});
+export const GetUserEducationResponse = zod.array(GetUserEducationResponseItem);
+
+/**
+ * @summary Add education record
+ */
+export const AddUserEducationParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const AddUserEducationBody = zod.object({
+  id: zod.string().optional(),
+  userId: zod.string().optional(),
+  institution: zod.string(),
+  degree: zod.string(),
+  branch: zod.string().optional(),
+  cgpa: zod.string().optional(),
+  startYear: zod.number().optional(),
+  endYear: zod.number().optional(),
+  currentSemester: zod.string().optional(),
+  achievements: zod.array(zod.string()).optional(),
+});
+
+/**
+ * @summary Update education record
+ */
+export const UpdateEducationParams = zod.object({
+  id: zod.coerce.string(),
+  eduId: zod.coerce.string(),
+});
+
+export const UpdateEducationBody = zod.object({
+  id: zod.string().optional(),
+  userId: zod.string().optional(),
+  institution: zod.string(),
+  degree: zod.string(),
+  branch: zod.string().optional(),
+  cgpa: zod.string().optional(),
+  startYear: zod.number().optional(),
+  endYear: zod.number().optional(),
+  currentSemester: zod.string().optional(),
+  achievements: zod.array(zod.string()).optional(),
+});
+
+export const UpdateEducationResponse = zod.object({
+  id: zod.string().optional(),
+  userId: zod.string().optional(),
+  institution: zod.string(),
+  degree: zod.string(),
+  branch: zod.string().optional(),
+  cgpa: zod.string().optional(),
+  startYear: zod.number().optional(),
+  endYear: zod.number().optional(),
+  currentSemester: zod.string().optional(),
+  achievements: zod.array(zod.string()).optional(),
+});
+
+/**
+ * @summary Delete education record
+ */
+export const DeleteEducationParams = zod.object({
+  id: zod.coerce.string(),
+  eduId: zod.coerce.string(),
+});
+
+export const DeleteEducationResponse = zod.object({
+  message: zod.string(),
+});
+
+/**
+ * @summary Get user projects
+ */
+export const GetUserProjectsParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetUserProjectsResponseItem = zod.object({
+  id: zod.string().optional(),
+  userId: zod.string().optional(),
+  title: zod.string(),
+  description: zod.string(),
+  technologies: zod.array(zod.string()),
+  isTeamProject: zod.boolean().optional(),
+  startDate: zod.string().optional(),
+  endDate: zod.string().optional(),
+  githubLink: zod.string().optional(),
+  liveDemoLink: zod.string().optional(),
+  images: zod.array(zod.string()).optional(),
+});
+export const GetUserProjectsResponse = zod.array(GetUserProjectsResponseItem);
+
+/**
+ * @summary Add project
+ */
+export const AddUserProjectParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const AddUserProjectBody = zod.object({
+  id: zod.string().optional(),
+  userId: zod.string().optional(),
+  title: zod.string(),
+  description: zod.string(),
+  technologies: zod.array(zod.string()),
+  isTeamProject: zod.boolean().optional(),
+  startDate: zod.string().optional(),
+  endDate: zod.string().optional(),
+  githubLink: zod.string().optional(),
+  liveDemoLink: zod.string().optional(),
+  images: zod.array(zod.string()).optional(),
+});
+
+/**
+ * @summary Update project
+ */
+export const UpdateProjectParams = zod.object({
+  id: zod.coerce.string(),
+  projectId: zod.coerce.string(),
+});
+
+export const UpdateProjectBody = zod.object({
+  id: zod.string().optional(),
+  userId: zod.string().optional(),
+  title: zod.string(),
+  description: zod.string(),
+  technologies: zod.array(zod.string()),
+  isTeamProject: zod.boolean().optional(),
+  startDate: zod.string().optional(),
+  endDate: zod.string().optional(),
+  githubLink: zod.string().optional(),
+  liveDemoLink: zod.string().optional(),
+  images: zod.array(zod.string()).optional(),
+});
+
+export const UpdateProjectResponse = zod.object({
+  id: zod.string().optional(),
+  userId: zod.string().optional(),
+  title: zod.string(),
+  description: zod.string(),
+  technologies: zod.array(zod.string()),
+  isTeamProject: zod.boolean().optional(),
+  startDate: zod.string().optional(),
+  endDate: zod.string().optional(),
+  githubLink: zod.string().optional(),
+  liveDemoLink: zod.string().optional(),
+  images: zod.array(zod.string()).optional(),
+});
+
+/**
+ * @summary Delete project
+ */
+export const DeleteProjectParams = zod.object({
+  id: zod.coerce.string(),
+  projectId: zod.coerce.string(),
+});
+
+export const DeleteProjectResponse = zod.object({
+  message: zod.string(),
+});
+
+/**
+ * @summary Get user certifications
+ */
+export const GetUserCertificationsParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetUserCertificationsResponseItem = zod.object({
+  id: zod.string().optional(),
+  userId: zod.string().optional(),
+  name: zod.string(),
+  organization: zod.string(),
+  issueDate: zod.string().optional(),
+  expiryDate: zod.string().optional(),
+  credentialUrl: zod.string().optional(),
+  credentialId: zod.string().optional(),
+  fileUrl: zod.string().optional(),
+});
+export const GetUserCertificationsResponse = zod.array(
+  GetUserCertificationsResponseItem,
+);
+
+/**
+ * @summary Add certification
+ */
+export const AddUserCertificationParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const AddUserCertificationBody = zod.object({
+  id: zod.string().optional(),
+  userId: zod.string().optional(),
+  name: zod.string(),
+  organization: zod.string(),
+  issueDate: zod.string().optional(),
+  expiryDate: zod.string().optional(),
+  credentialUrl: zod.string().optional(),
+  credentialId: zod.string().optional(),
+  fileUrl: zod.string().optional(),
+});
+
+/**
+ * @summary Update certification
+ */
+export const UpdateCertificationParams = zod.object({
+  id: zod.coerce.string(),
+  certId: zod.coerce.string(),
+});
+
+export const UpdateCertificationBody = zod.object({
+  id: zod.string().optional(),
+  userId: zod.string().optional(),
+  name: zod.string(),
+  organization: zod.string(),
+  issueDate: zod.string().optional(),
+  expiryDate: zod.string().optional(),
+  credentialUrl: zod.string().optional(),
+  credentialId: zod.string().optional(),
+  fileUrl: zod.string().optional(),
+});
+
+export const UpdateCertificationResponse = zod.object({
+  id: zod.string().optional(),
+  userId: zod.string().optional(),
+  name: zod.string(),
+  organization: zod.string(),
+  issueDate: zod.string().optional(),
+  expiryDate: zod.string().optional(),
+  credentialUrl: zod.string().optional(),
+  credentialId: zod.string().optional(),
+  fileUrl: zod.string().optional(),
+});
+
+/**
+ * @summary Delete certification
+ */
+export const DeleteCertificationParams = zod.object({
+  id: zod.coerce.string(),
+  certId: zod.coerce.string(),
+});
+
+export const DeleteCertificationResponse = zod.object({
+  message: zod.string(),
+});
+
+/**
+ * @summary Get user experience
+ */
+export const GetUserExperienceParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetUserExperienceResponseItem = zod.object({
+  id: zod.string().optional(),
+  userId: zod.string().optional(),
+  type: zod.enum(["internship", "freelance", "full-time", "part-time"]),
+  position: zod.string(),
+  company: zod.string(),
+  location: zod.string().optional(),
+  startDate: zod.string(),
+  endDate: zod.string().optional(),
+  isCurrent: zod.boolean().optional(),
+  responsibilities: zod.array(zod.string()).optional(),
+});
+export const GetUserExperienceResponse = zod.array(
+  GetUserExperienceResponseItem,
+);
+
+/**
+ * @summary Add experience
+ */
+export const AddUserExperienceParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const AddUserExperienceBody = zod.object({
+  id: zod.string().optional(),
+  userId: zod.string().optional(),
+  type: zod.enum(["internship", "freelance", "full-time", "part-time"]),
+  position: zod.string(),
+  company: zod.string(),
+  location: zod.string().optional(),
+  startDate: zod.string(),
+  endDate: zod.string().optional(),
+  isCurrent: zod.boolean().optional(),
+  responsibilities: zod.array(zod.string()).optional(),
+});
+
+/**
+ * @summary Update experience
+ */
+export const UpdateExperienceParams = zod.object({
+  id: zod.coerce.string(),
+  expId: zod.coerce.string(),
+});
+
+export const UpdateExperienceBody = zod.object({
+  id: zod.string().optional(),
+  userId: zod.string().optional(),
+  type: zod.enum(["internship", "freelance", "full-time", "part-time"]),
+  position: zod.string(),
+  company: zod.string(),
+  location: zod.string().optional(),
+  startDate: zod.string(),
+  endDate: zod.string().optional(),
+  isCurrent: zod.boolean().optional(),
+  responsibilities: zod.array(zod.string()).optional(),
+});
+
+export const UpdateExperienceResponse = zod.object({
+  id: zod.string().optional(),
+  userId: zod.string().optional(),
+  type: zod.enum(["internship", "freelance", "full-time", "part-time"]),
+  position: zod.string(),
+  company: zod.string(),
+  location: zod.string().optional(),
+  startDate: zod.string(),
+  endDate: zod.string().optional(),
+  isCurrent: zod.boolean().optional(),
+  responsibilities: zod.array(zod.string()).optional(),
+});
+
+/**
+ * @summary Delete experience
+ */
+export const DeleteExperienceParams = zod.object({
+  id: zod.coerce.string(),
+  expId: zod.coerce.string(),
+});
+
+export const DeleteExperienceResponse = zod.object({
+  message: zod.string(),
+});
+
+/**
+ * @summary Get user profile analytics
+ */
+export const GetUserAnalyticsParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetUserAnalyticsResponse = zod.object({
+  id: zod.string().optional(),
+  userId: zod.string(),
+  views: zod.number().optional(),
+  impressions: zod.number().optional(),
+  applicationStats: zod
+    .object({
+      applied: zod.number().optional(),
+      shortlisted: zod.number().optional(),
+      rejected: zod.number().optional(),
+    })
+    .optional(),
+  skillRankings: zod
+    .array(
+      zod.object({
+        skill: zod.string().optional(),
+        percentile: zod.number().optional(),
+      }),
+    )
+    .optional(),
 });
 
 /**
@@ -379,6 +911,22 @@ export const ListApplicationsResponseItem = zod.object({
       bio: zod.string().optional(),
       institution: zod.string().optional(),
       location: zod.string().optional(),
+      phone: zod.string().optional(),
+      socialLinks: zod
+        .object({
+          linkedin: zod.string().optional(),
+          github: zod.string().optional(),
+          portfolio: zod.string().optional(),
+        })
+        .optional(),
+      privacy: zod
+        .object({
+          isPublic: zod.boolean().optional(),
+          showResume: zod.boolean().optional(),
+          showProjects: zod.boolean().optional(),
+          showContact: zod.boolean().optional(),
+        })
+        .optional(),
       xp: zod.number().optional(),
       level: zod.number().optional(),
       streak: zod.number().optional(),
@@ -439,6 +987,22 @@ export const UpdateApplicationResponse = zod.object({
       bio: zod.string().optional(),
       institution: zod.string().optional(),
       location: zod.string().optional(),
+      phone: zod.string().optional(),
+      socialLinks: zod
+        .object({
+          linkedin: zod.string().optional(),
+          github: zod.string().optional(),
+          portfolio: zod.string().optional(),
+        })
+        .optional(),
+      privacy: zod
+        .object({
+          isPublic: zod.boolean().optional(),
+          showResume: zod.boolean().optional(),
+          showProjects: zod.boolean().optional(),
+          showContact: zod.boolean().optional(),
+        })
+        .optional(),
       xp: zod.number().optional(),
       level: zod.number().optional(),
       streak: zod.number().optional(),
@@ -637,61 +1201,52 @@ export const UpdateLearningProgressResponse = zod.object({
 });
 
 /**
- * @summary Get current user resume info
+ * @summary Get current user resume versions
  */
-export const GetResumeResponse = zod.object({
+export const GetResumeResponseItem = zod.object({
   id: zod.string(),
   userId: zod.string(),
   filename: zod.string().optional(),
   summary: zod.string().optional(),
-  experience: zod
-    .array(
-      zod.object({
-        company: zod.string(),
-        role: zod.string(),
-        duration: zod.string(),
-      }),
-    )
-    .optional(),
-  education: zod
-    .array(
-      zod.object({
-        institution: zod.string(),
-        degree: zod.string(),
-        year: zod.string(),
-      }),
-    )
-    .optional(),
+  experience: zod.array(zod.object({}).passthrough()).optional(),
+  education: zod.array(zod.object({}).passthrough()).optional(),
   extractedSkills: zod.array(zod.string()).optional(),
   atsScore: zod.number().optional(),
+  isMain: zod.boolean().optional(),
+  createdAt: zod.string().optional(),
   updatedAt: zod.string().optional(),
+  parsedData: zod
+    .object({
+      profile: zod.object({}).passthrough().optional(),
+      skills: zod.array(zod.string()).optional(),
+      experience: zod.array(zod.object({}).passthrough()).optional(),
+      education: zod.array(zod.object({}).passthrough()).optional(),
+      summary: zod.string().optional(),
+      atsScore: zod.number().optional(),
+    })
+    .optional(),
+});
+export const GetResumeResponse = zod.array(GetResumeResponseItem);
+
+/**
+ * @summary Upload a resume file (PDF/DOCX)
+ */
+export const UploadResumeFileBody = zod.object({
+  resume: zod.instanceof(File).optional(),
 });
 
 /**
- * @summary Upload/create resume data
+ * @summary Sync parsed resume data to profile
  */
-export const UploadResumeBody = zod.object({
-  filename: zod.string(),
-  summary: zod.string().optional(),
-  experience: zod
-    .array(
-      zod.object({
-        company: zod.string(),
-        role: zod.string(),
-        duration: zod.string(),
-      }),
-    )
-    .optional(),
-  education: zod
-    .array(
-      zod.object({
-        institution: zod.string(),
-        degree: zod.string(),
-        year: zod.string(),
-      }),
-    )
-    .optional(),
+export const SyncResumeDataBody = zod.object({
+  profile: zod.object({}).passthrough().optional(),
   skills: zod.array(zod.string()).optional(),
+  education: zod.array(zod.object({}).passthrough()).optional(),
+  experience: zod.array(zod.object({}).passthrough()).optional(),
+});
+
+export const SyncResumeDataResponse = zod.object({
+  message: zod.string().optional(),
 });
 
 /**
@@ -867,6 +1422,22 @@ export const ListBidsResponseItem = zod.object({
       bio: zod.string().optional(),
       institution: zod.string().optional(),
       location: zod.string().optional(),
+      phone: zod.string().optional(),
+      socialLinks: zod
+        .object({
+          linkedin: zod.string().optional(),
+          github: zod.string().optional(),
+          portfolio: zod.string().optional(),
+        })
+        .optional(),
+      privacy: zod
+        .object({
+          isPublic: zod.boolean().optional(),
+          showResume: zod.boolean().optional(),
+          showProjects: zod.boolean().optional(),
+          showContact: zod.boolean().optional(),
+        })
+        .optional(),
       xp: zod.number().optional(),
       level: zod.number().optional(),
       streak: zod.number().optional(),
@@ -1050,6 +1621,22 @@ export const ListSubmissionsResponseItem = zod.object({
       bio: zod.string().optional(),
       institution: zod.string().optional(),
       location: zod.string().optional(),
+      phone: zod.string().optional(),
+      socialLinks: zod
+        .object({
+          linkedin: zod.string().optional(),
+          github: zod.string().optional(),
+          portfolio: zod.string().optional(),
+        })
+        .optional(),
+      privacy: zod
+        .object({
+          isPublic: zod.boolean().optional(),
+          showResume: zod.boolean().optional(),
+          showProjects: zod.boolean().optional(),
+          showContact: zod.boolean().optional(),
+        })
+        .optional(),
       xp: zod.number().optional(),
       level: zod.number().optional(),
       streak: zod.number().optional(),
@@ -1133,6 +1720,22 @@ export const UpdateSubmissionResponse = zod.object({
       bio: zod.string().optional(),
       institution: zod.string().optional(),
       location: zod.string().optional(),
+      phone: zod.string().optional(),
+      socialLinks: zod
+        .object({
+          linkedin: zod.string().optional(),
+          github: zod.string().optional(),
+          portfolio: zod.string().optional(),
+        })
+        .optional(),
+      privacy: zod
+        .object({
+          isPublic: zod.boolean().optional(),
+          showResume: zod.boolean().optional(),
+          showProjects: zod.boolean().optional(),
+          showContact: zod.boolean().optional(),
+        })
+        .optional(),
       xp: zod.number().optional(),
       level: zod.number().optional(),
       streak: zod.number().optional(),

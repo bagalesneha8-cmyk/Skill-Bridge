@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const userSkillSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   skill: { type: String, required: true },
+  category: { type: String, enum: ["Programming Languages", "Web Development", "AI/ML", "UI/UX", "Cloud Computing", "Communication Skills", "Other"], default: "Other" },
   level: { type: String, required: true, default: "beginner" },
   verified: { type: Boolean, required: true, default: false },
 }, { timestamps: { createdAt: true, updatedAt: false } });
