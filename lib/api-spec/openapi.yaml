@@ -3,20 +3,42 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: SkillSync AI API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: users
+    description: User operations
+  - name: jobs
+    description: Job and internship operations
+  - name: assessments
+    description: Skill assessment operations
+  - name: learning
+    description: Learning recommendations
+  - name: resume
+    description: Resume management
+  - name: career
+    description: Career tracking
+  - name: freelance
+    description: Freelancer marketplace
+  - name: college
+    description: College forms and submissions
+  - name: notifications
+    description: Notifications
+  - name: dashboard
+    description: Dashboard aggregates
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +46,965 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # AUTH
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterBody"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  # USERS
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List users (admin)
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Users list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsersListResponse"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update user profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserBody"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/{id}/skills:
+    get:
+      operationId: getUserSkills
+      tags: [users]
+      summary: Get user skills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User skills
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserSkill"
+    post:
+      operationId: addUserSkill
+      tags: [users]
+      summary: Add a skill to user profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddSkillBody"
+      responses:
+        "201":
+          description: Skill added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserSkill"
+
+  # JOBS
+  /jobs:
+    get:
+      operationId: listJobs
+      tags: [jobs]
+      summary: List jobs and internships
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [job, internship, freelance, hackathon]
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: skills
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Jobs list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobsListResponse"
+    post:
+      operationId: createJob
+      tags: [jobs]
+      summary: Create a job posting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateJobBody"
+      responses:
+        "201":
+          description: Job created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+
+  /jobs/{id}:
+    get:
+      operationId: getJob
+      tags: [jobs]
+      summary: Get job by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+
+  /jobs/{id}/apply:
+    post:
+      operationId: applyJob
+      tags: [jobs]
+      summary: Apply for a job
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplyJobBody"
+      responses:
+        "201":
+          description: Application submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobApplication"
+
+  /jobs/matches:
+    get:
+      operationId: getJobMatches
+      tags: [jobs]
+      summary: Get AI-matched jobs for current user
+      responses:
+        "200":
+          description: Matched jobs with scores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JobMatch"
+
+  /applications:
+    get:
+      operationId: listApplications
+      tags: [jobs]
+      summary: List applications for current user or recruiter
+      parameters:
+        - name: jobId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Applications list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JobApplication"
+
+  /applications/{id}:
+    patch:
+      operationId: updateApplication
+      tags: [jobs]
+      summary: Update application status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateApplicationBody"
+      responses:
+        "200":
+          description: Updated application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobApplication"
+
+  # ASSESSMENTS
+  /assessments:
+    get:
+      operationId: listAssessments
+      tags: [assessments]
+      summary: List available assessments
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Assessments list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Assessment"
+    post:
+      operationId: createAssessment
+      tags: [assessments]
+      summary: Create an assessment (admin/recruiter)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAssessmentBody"
+      responses:
+        "201":
+          description: Assessment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assessment"
+
+  /assessments/{id}:
+    get:
+      operationId: getAssessment
+      tags: [assessments]
+      summary: Get assessment with questions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Assessment with questions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssessmentDetail"
+
+  /assessments/{id}/submit:
+    post:
+      operationId: submitAssessment
+      tags: [assessments]
+      summary: Submit assessment answers
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitAssessmentBody"
+      responses:
+        "200":
+          description: Assessment result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssessmentResult"
+
+  /assessment-results:
+    get:
+      operationId: listAssessmentResults
+      tags: [assessments]
+      summary: Get assessment results for current user
+      responses:
+        "200":
+          description: Assessment results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AssessmentResult"
+
+  # LEARNING
+  /learning/recommendations:
+    get:
+      operationId: getLearningRecommendations
+      tags: [learning]
+      summary: Get personalized learning recommendations
+      responses:
+        "200":
+          description: Learning recommendations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LearningRecommendation"
+
+  /learning/roadmap:
+    get:
+      operationId: getLearningRoadmap
+      tags: [learning]
+      summary: Get personalized learning roadmap
+      responses:
+        "200":
+          description: Learning roadmap
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearningRoadmap"
+
+  /learning/progress:
+    get:
+      operationId: getLearningProgress
+      tags: [learning]
+      summary: Get learning progress and streaks
+      responses:
+        "200":
+          description: Learning progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearningProgress"
+    post:
+      operationId: updateLearningProgress
+      tags: [learning]
+      summary: Mark a learning item as complete
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLearningProgressBody"
+      responses:
+        "200":
+          description: Updated progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearningProgress"
+
+  # RESUME
+  /resume:
+    get:
+      operationId: getResume
+      tags: [resume]
+      summary: Get current user resume info
+      responses:
+        "200":
+          description: Resume info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resume"
+    post:
+      operationId: uploadResume
+      tags: [resume]
+      summary: Upload/create resume data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateResumeBody"
+      responses:
+        "201":
+          description: Resume created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resume"
+
+  /resume/analyze:
+    post:
+      operationId: analyzeResume
+      tags: [resume]
+      summary: AI analysis of resume with ATS score
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzeResumeBody"
+      responses:
+        "200":
+          description: Resume analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResumeAnalysis"
+
+  # CAREER
+  /career/stats:
+    get:
+      operationId: getCareerStats
+      tags: [career]
+      summary: Get career tracking stats for current user
+      responses:
+        "200":
+          description: Career stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CareerStats"
+
+  /career/timeline:
+    get:
+      operationId: getCareerTimeline
+      tags: [career]
+      summary: Get career activity timeline
+      responses:
+        "200":
+          description: Career timeline
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CareerEvent"
+
+  /career/badges:
+    get:
+      operationId: getUserBadges
+      tags: [career]
+      summary: Get earned badges and XP for current user
+      responses:
+        "200":
+          description: Badges and XP
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GamificationProfile"
+
+  /leaderboard:
+    get:
+      operationId: getLeaderboard
+      tags: [career]
+      summary: Get leaderboard rankings
+      responses:
+        "200":
+          description: Leaderboard
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaderboardEntry"
+
+  # FREELANCE
+  /freelance/projects:
+    get:
+      operationId: listFreelanceProjects
+      tags: [freelance]
+      summary: List freelance projects
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: skills
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Projects list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FreelanceProjectsListResponse"
+    post:
+      operationId: createFreelanceProject
+      tags: [freelance]
+      summary: Post a freelance project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFreelanceProjectBody"
+      responses:
+        "201":
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FreelanceProject"
+
+  /freelance/projects/{id}:
+    get:
+      operationId: getFreelanceProject
+      tags: [freelance]
+      summary: Get freelance project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FreelanceProject"
+
+  /freelance/projects/{id}/bids:
+    get:
+      operationId: listBids
+      tags: [freelance]
+      summary: List bids on a project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Bids
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Bid"
+    post:
+      operationId: placeBid
+      tags: [freelance]
+      summary: Place a bid on a project
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlaceBidBody"
+      responses:
+        "201":
+          description: Bid placed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bid"
+
+  # COLLEGE
+  /college/forms:
+    get:
+      operationId: listCollegeForms
+      tags: [college]
+      summary: List college forms
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Forms list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CollegeForm"
+    post:
+      operationId: createCollegeForm
+      tags: [college]
+      summary: Create a college form (faculty/admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCollegeFormBody"
+      responses:
+        "201":
+          description: Form created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollegeForm"
+
+  /college/forms/{id}:
+    get:
+      operationId: getCollegeForm
+      tags: [college]
+      summary: Get form with fields
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Form detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CollegeForm"
+
+  /college/submissions:
+    get:
+      operationId: listSubmissions
+      tags: [college]
+      summary: List form submissions
+      parameters:
+        - name: formId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Submissions list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FormSubmission"
+    post:
+      operationId: createSubmission
+      tags: [college]
+      summary: Submit a college form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSubmissionBody"
+      responses:
+        "201":
+          description: Submission created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FormSubmission"
+
+  /college/submissions/{id}:
+    patch:
+      operationId: updateSubmission
+      tags: [college]
+      summary: Approve or reject a submission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSubmissionBody"
+      responses:
+        "200":
+          description: Updated submission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FormSubmission"
+
+  /college/announcements:
+    get:
+      operationId: listAnnouncements
+      tags: [college]
+      summary: List announcements
+      responses:
+        "200":
+          description: Announcements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Announcement"
+    post:
+      operationId: createAnnouncement
+      tags: [college]
+      summary: Create announcement (faculty/admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAnnouncementBody"
+      responses:
+        "201":
+          description: Announcement created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+
+  # NOTIFICATIONS
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: List notifications for current user
+      responses:
+        "200":
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+
+  /notifications/{id}/read:
+    patch:
+      operationId: markNotificationRead
+      tags: [notifications]
+      summary: Mark notification as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Notification updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
+  /notifications/read-all:
+    patch:
+      operationId: markAllNotificationsRead
+      tags: [notifications]
+      summary: Mark all notifications as read
+      responses:
+        "200":
+          description: All marked read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # DASHBOARD
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get dashboard summary for current user role
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /dashboard/activity:
+    get:
+      operationId: getRecentActivity
+      tags: [dashboard]
+      summary: Get recent platform activity
+      responses:
+        "200":
+          description: Recent activity feed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  /dashboard/stats:
+    get:
+      operationId: getPlatformStats
+      tags: [dashboard]
+      summary: Get platform-wide stats (admin)
+      responses:
+        "200":
+          description: Platform statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformStats"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +1012,1020 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    # AUTH
+    RegisterBody:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum: [student, recruiter, faculty, freelancer_client, admin]
+        institution:
+          type: string
+      required: [name, email, password, role]
+
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required: [email, password]
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+      required: [user, token]
+
+    # USER
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [student, recruiter, faculty, freelancer_client, admin]
+        avatar:
+          type: string
+        bio:
+          type: string
+        institution:
+          type: string
+        location:
+          type: string
+        xp:
+          type: integer
+        level:
+          type: integer
+        streak:
+          type: integer
+        createdAt:
+          type: string
+      required: [id, name, email, role]
+
+    UpdateUserBody:
+      type: object
+      properties:
+        name:
+          type: string
+        bio:
+          type: string
+        institution:
+          type: string
+        location:
+          type: string
+        avatar:
+          type: string
+
+    UsersListResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [users, total, page, limit]
+
+    UserSkill:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        skill:
+          type: string
+        level:
+          type: string
+          enum: [beginner, intermediate, advanced, expert]
+        verified:
+          type: boolean
+      required: [id, userId, skill, level]
+
+    AddSkillBody:
+      type: object
+      properties:
+        skill:
+          type: string
+        level:
+          type: string
+          enum: [beginner, intermediate, advanced, expert]
+      required: [skill, level]
+
+    # JOBS
+    Job:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        company:
+          type: string
+        type:
+          type: string
+          enum: [job, internship, freelance, hackathon]
+        description:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+        location:
+          type: string
+        salary:
+          type: string
+        deadline:
+          type: string
+        postedById:
+          type: integer
+        applicantCount:
+          type: integer
+        createdAt:
+          type: string
+        status:
+          type: string
+          enum: [open, closed]
+      required: [id, title, company, type, description, skills, status]
+
+    CreateJobBody:
+      type: object
+      properties:
+        title:
+          type: string
+        company:
+          type: string
+        type:
+          type: string
+          enum: [job, internship, freelance, hackathon]
+        description:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+        location:
+          type: string
+        salary:
+          type: string
+        deadline:
+          type: string
+      required: [title, company, type, description, skills]
+
+    JobsListResponse:
+      type: object
+      properties:
+        jobs:
+          type: array
+          items:
+            $ref: "#/components/schemas/Job"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [jobs, total, page, limit]
+
+    JobMatch:
+      type: object
+      properties:
+        job:
+          $ref: "#/components/schemas/Job"
+        matchScore:
+          type: number
+        missingSkills:
+          type: array
+          items:
+            type: string
+        matchedSkills:
+          type: array
+          items:
+            type: string
+      required: [job, matchScore, missingSkills, matchedSkills]
+
+    ApplyJobBody:
+      type: object
+      properties:
+        coverLetter:
+          type: string
+        resumeId:
+          type: integer
+      required: []
+
+    JobApplication:
+      type: object
+      properties:
+        id:
+          type: integer
+        jobId:
+          type: integer
+        userId:
+          type: integer
+        status:
+          type: string
+          enum: [pending, reviewed, shortlisted, rejected, hired]
+        coverLetter:
+          type: string
+        appliedAt:
+          type: string
+        job:
+          $ref: "#/components/schemas/Job"
+        user:
+          $ref: "#/components/schemas/User"
+      required: [id, jobId, userId, status, appliedAt]
+
+    UpdateApplicationBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, reviewed, shortlisted, rejected, hired]
+      required: [status]
+
+    # ASSESSMENTS
+    Assessment:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        category:
+          type: string
+        type:
+          type: string
+          enum: [mcq, coding, aptitude, communication]
+        difficulty:
+          type: string
+          enum: [easy, medium, hard]
+        duration:
+          type: integer
+        questionCount:
+          type: integer
+        createdAt:
+          type: string
+      required: [id, title, category, type, difficulty, duration, questionCount]
+
+    AssessmentDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        category:
+          type: string
+        type:
+          type: string
+        difficulty:
+          type: string
+        duration:
+          type: integer
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Question"
+      required: [id, title, category, type, difficulty, duration, questions]
+
+    Question:
+      type: object
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        type:
+          type: string
+          enum: [mcq, coding, text]
+      required: [id, text, type]
+
+    CreateAssessmentBody:
+      type: object
+      properties:
+        title:
+          type: string
+        category:
+          type: string
+        type:
+          type: string
+          enum: [mcq, coding, aptitude, communication]
+        difficulty:
+          type: string
+          enum: [easy, medium, hard]
+        duration:
+          type: integer
+        questions:
+          type: array
+          items:
+            type: object
+            properties:
+              text:
+                type: string
+              options:
+                type: array
+                items:
+                  type: string
+              correctAnswer:
+                type: string
+              type:
+                type: string
+            required: [text, type]
+      required: [title, category, type, difficulty, duration, questions]
+
+    SubmitAssessmentBody:
+      type: object
+      properties:
+        answers:
+          type: array
+          items:
+            type: object
+            properties:
+              questionId:
+                type: integer
+              answer:
+                type: string
+            required: [questionId, answer]
+      required: [answers]
+
+    AssessmentResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        assessmentId:
+          type: integer
+        userId:
+          type: integer
+        score:
+          type: number
+        passed:
+          type: boolean
+        certificate:
+          type: string
+        completedAt:
+          type: string
+        assessment:
+          $ref: "#/components/schemas/Assessment"
+      required: [id, assessmentId, userId, score, passed, completedAt]
+
+    # LEARNING
+    LearningRecommendation:
+      type: object
+      properties:
+        id:
+          type: integer
+        skill:
+          type: string
+        title:
+          type: string
+        type:
+          type: string
+          enum: [course, youtube, documentation, platform, roadmap]
+        url:
+          type: string
+        provider:
+          type: string
+        duration:
+          type: string
+        priority:
+          type: string
+          enum: [high, medium, low]
+      required: [id, skill, title, type, url, provider, priority]
+
+    LearningRoadmap:
+      type: object
+      properties:
+        currentRole:
+          type: string
+        targetRole:
+          type: string
+        stages:
+          type: array
+          items:
+            type: object
+            properties:
+              stage:
+                type: integer
+              title:
+                type: string
+              skills:
+                type: array
+                items:
+                  type: string
+              completed:
+                type: boolean
+            required: [stage, title, skills, completed]
+      required: [currentRole, targetRole, stages]
+
+    LearningProgress:
+      type: object
+      properties:
+        streak:
+          type: integer
+        completedItems:
+          type: integer
+        totalItems:
+          type: integer
+        weeklyGoal:
+          type: integer
+        weeklyCompleted:
+          type: integer
+        completedIds:
+          type: array
+          items:
+            type: integer
+      required: [streak, completedItems, totalItems, weeklyGoal, weeklyCompleted, completedIds]
+
+    UpdateLearningProgressBody:
+      type: object
+      properties:
+        recommendationId:
+          type: integer
+      required: [recommendationId]
+
+    # RESUME
+    Resume:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        filename:
+          type: string
+        summary:
+          type: string
+        experience:
+          type: array
+          items:
+            type: object
+            properties:
+              company:
+                type: string
+              role:
+                type: string
+              duration:
+                type: string
+            required: [company, role, duration]
+        education:
+          type: array
+          items:
+            type: object
+            properties:
+              institution:
+                type: string
+              degree:
+                type: string
+              year:
+                type: string
+            required: [institution, degree, year]
+        extractedSkills:
+          type: array
+          items:
+            type: string
+        atsScore:
+          type: number
+        updatedAt:
+          type: string
+      required: [id, userId]
+
+    CreateResumeBody:
+      type: object
+      properties:
+        filename:
+          type: string
+        summary:
+          type: string
+        experience:
+          type: array
+          items:
+            type: object
+            properties:
+              company:
+                type: string
+              role:
+                type: string
+              duration:
+                type: string
+            required: [company, role, duration]
+        education:
+          type: array
+          items:
+            type: object
+            properties:
+              institution:
+                type: string
+              degree:
+                type: string
+              year:
+                type: string
+            required: [institution, degree, year]
+        skills:
+          type: array
+          items:
+            type: string
+      required: [filename]
+
+    AnalyzeResumeBody:
+      type: object
+      properties:
+        text:
+          type: string
+        targetJobTitle:
+          type: string
+      required: [text]
+
+    ResumeAnalysis:
+      type: object
+      properties:
+        atsScore:
+          type: number
+        strengths:
+          type: array
+          items:
+            type: string
+        improvements:
+          type: array
+          items:
+            type: string
+        missingKeywords:
+          type: array
+          items:
+            type: string
+        extractedSkills:
+          type: array
+          items:
+            type: string
+      required: [atsScore, strengths, improvements, missingKeywords, extractedSkills]
+
+    # CAREER
+    CareerStats:
+      type: object
+      properties:
+        appliedJobs:
+          type: integer
+        interviews:
+          type: integer
+        freelanceProjects:
+          type: integer
+        skillScore:
+          type: number
+        certificatesEarned:
+          type: integer
+        learningStreak:
+          type: integer
+        xp:
+          type: integer
+        level:
+          type: integer
+        applicationsByStatus:
+          type: object
+          properties:
+            pending:
+              type: integer
+            shortlisted:
+              type: integer
+            rejected:
+              type: integer
+            hired:
+              type: integer
+          required: [pending, shortlisted, rejected, hired]
+      required: [appliedJobs, interviews, freelanceProjects, skillScore, certificatesEarned, learningStreak, xp, level, applicationsByStatus]
+
+    CareerEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+      required: [id, type, title, date]
+
+    GamificationProfile:
+      type: object
+      properties:
+        xp:
+          type: integer
+        level:
+          type: integer
+        badges:
+          type: array
+          items:
+            $ref: "#/components/schemas/Badge"
+        rank:
+          type: integer
+      required: [xp, level, badges, rank]
+
+    Badge:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+        earnedAt:
+          type: string
+      required: [id, name, description, icon]
+
+    LeaderboardEntry:
+      type: object
+      properties:
+        rank:
+          type: integer
+        userId:
+          type: integer
+        name:
+          type: string
+        avatar:
+          type: string
+        xp:
+          type: integer
+        level:
+          type: integer
+        badges:
+          type: integer
+      required: [rank, userId, name, xp, level, badges]
+
+    # FREELANCE
+    FreelanceProject:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        budget:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+        deadline:
+          type: string
+        status:
+          type: string
+          enum: [open, in_progress, completed, cancelled]
+        clientId:
+          type: integer
+        bidCount:
+          type: integer
+        createdAt:
+          type: string
+      required: [id, title, description, budget, skills, status, clientId]
+
+    CreateFreelanceProjectBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        budget:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+        deadline:
+          type: string
+      required: [title, description, budget, skills]
+
+    FreelanceProjectsListResponse:
+      type: object
+      properties:
+        projects:
+          type: array
+          items:
+            $ref: "#/components/schemas/FreelanceProject"
+        total:
+          type: integer
+        page:
+          type: integer
+      required: [projects, total, page]
+
+    Bid:
+      type: object
+      properties:
+        id:
+          type: integer
+        projectId:
+          type: integer
+        freelancerId:
+          type: integer
+        amount:
+          type: string
+        proposal:
+          type: string
+        deliveryTime:
+          type: string
+        status:
+          type: string
+          enum: [pending, accepted, rejected]
+        createdAt:
+          type: string
+        freelancer:
+          $ref: "#/components/schemas/User"
+      required: [id, projectId, freelancerId, amount, proposal, status, createdAt]
+
+    PlaceBidBody:
+      type: object
+      properties:
+        amount:
+          type: string
+        proposal:
+          type: string
+        deliveryTime:
+          type: string
+      required: [amount, proposal]
+
+    # COLLEGE
+    CollegeForm:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        type:
+          type: string
+          enum: [internship, hackathon, leave, project, assignment, other]
+        description:
+          type: string
+        deadline:
+          type: string
+        fields:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              label:
+                type: string
+              type:
+                type: string
+              required:
+                type: boolean
+            required: [name, label, type, required]
+        createdById:
+          type: integer
+        status:
+          type: string
+          enum: [open, closed]
+        submissionCount:
+          type: integer
+        createdAt:
+          type: string
+      required: [id, title, type, description, status]
+
+    CreateCollegeFormBody:
+      type: object
+      properties:
+        title:
+          type: string
+        type:
+          type: string
+          enum: [internship, hackathon, leave, project, assignment, other]
+        description:
+          type: string
+        deadline:
+          type: string
+        fields:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              label:
+                type: string
+              type:
+                type: string
+              required:
+                type: boolean
+            required: [name, label, type, required]
+      required: [title, type, description, fields]
+
+    FormSubmission:
+      type: object
+      properties:
+        id:
+          type: integer
+        formId:
+          type: integer
+        userId:
+          type: integer
+        data:
+          type: object
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        feedback:
+          type: string
+        submittedAt:
+          type: string
+        form:
+          $ref: "#/components/schemas/CollegeForm"
+        user:
+          $ref: "#/components/schemas/User"
+      required: [id, formId, userId, data, status, submittedAt]
+
+    CreateSubmissionBody:
+      type: object
+      properties:
+        formId:
+          type: integer
+        data:
+          type: object
+      required: [formId, data]
+
+    UpdateSubmissionBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        feedback:
+          type: string
+      required: [status]
+
+    Announcement:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        type:
+          type: string
+          enum: [general, event, deadline, hackathon, job]
+        createdById:
+          type: integer
+        createdAt:
+          type: string
+      required: [id, title, content, type, createdAt]
+
+    CreateAnnouncementBody:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        type:
+          type: string
+          enum: [general, event, deadline, hackathon, job]
+      required: [title, content, type]
+
+    # NOTIFICATIONS
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        type:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        read:
+          type: boolean
+        createdAt:
+          type: string
+      required: [id, userId, type, title, message, read, createdAt]
+
+    # DASHBOARD
+    DashboardSummary:
+      type: object
+      properties:
+        role:
+          type: string
+        stats:
+          type: object
+          properties:
+            jobs:
+              type: integer
+            applications:
+              type: integer
+            assessmentsPassed:
+              type: integer
+            learningItems:
+              type: integer
+            freelanceProjects:
+              type: integer
+            forms:
+              type: integer
+            unreadNotifications:
+              type: integer
+          required: [jobs, applications, assessmentsPassed, learningItems, freelanceProjects, forms, unreadNotifications]
+        recentJobs:
+          type: array
+          items:
+            $ref: "#/components/schemas/Job"
+        topMatches:
+          type: array
+          items:
+            $ref: "#/components/schemas/JobMatch"
+        recentAnnouncements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Announcement"
+      required: [role, stats]
+
+    ActivityItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        description:
+          type: string
+        timestamp:
+          type: string
+        userId:
+          type: integer
+        userName:
+          type: string
+      required: [id, type, description, timestamp]
+
+    PlatformStats:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+        totalJobs:
+          type: integer
+        totalApplications:
+          type: integer
+        totalAssessments:
+          type: integer
+        totalFreelanceProjects:
+          type: integer
+        usersByRole:
+          type: object
+          properties:
+            student:
+              type: integer
+            recruiter:
+              type: integer
+            faculty:
+              type: integer
+            freelancer_client:
+              type: integer
+            admin:
+              type: integer
+          required: [student, recruiter, faculty, freelancer_client, admin]
+      required: [totalUsers, totalJobs, totalApplications, totalAssessments, totalFreelanceProjects, usersByRole]
