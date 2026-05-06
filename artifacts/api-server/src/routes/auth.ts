@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
-import { db, usersTable } from "@workspace/db";
+import { User } from "@workspace/db";
 import { RegisterBody, LoginBody } from "@workspace/api-zod";
 import { createHash, randomBytes } from "crypto";
 
@@ -11,7 +10,7 @@ function hashPassword(password: string): string {
   return createHash("sha256").update(password + salt).digest("hex");
 }
 
-function generateToken(userId: number): string {
+function generateToken(userId: string): string {
   return `${userId}_${randomBytes(32).toString("hex")}`;
 }
 
@@ -25,22 +24,22 @@ router.post("/auth/register", async (req, res): Promise<void> => {
 
   const { name, email, password, role, institution } = parsed.data;
 
-  const existing = await db.select().from(usersTable).where(eq(usersTable.email, email));
-  if (existing.length > 0) {
+  const existing = await User.findOne({ email });
+  if (existing) {
     res.status(409).json({ error: "Email already registered" });
     return;
   }
 
-  const [user] = await db.insert(usersTable).values({
+  const user = await User.create({
     name,
     email,
     password: hashPassword(password),
     role,
     institution: institution ?? null,
-  }).returning();
+  });
 
-  const token = generateToken(user.id);
-  res.status(201).json({ user: sanitizeUser(user), token });
+  const token = generateToken(user._id.toString());
+  res.status(201).json({ user: sanitizeUser(user.toObject()), token });
 });
 
 // POST /auth/login
@@ -53,14 +52,14 @@ router.post("/auth/login", async (req, res): Promise<void> => {
 
   const { email, password } = parsed.data;
 
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email));
+  const user = await User.findOne({ email });
   if (!user || user.password !== hashPassword(password)) {
     res.status(401).json({ error: "Invalid email or password" });
     return;
   }
 
-  const token = generateToken(user.id);
-  res.json({ user: sanitizeUser(user), token });
+  const token = generateToken(user._id.toString());
+  res.json({ user: sanitizeUser(user.toObject()), token });
 });
 
 // POST /auth/logout
@@ -76,26 +75,26 @@ router.get("/auth/me", async (req, res): Promise<void> => {
     return;
   }
 
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
+  const user = await User.findById(userId);
   if (!user) {
     res.status(404).json({ error: "User not found" });
     return;
   }
 
-  res.json(sanitizeUser(user));
+  res.json(sanitizeUser(user.toObject()));
 });
 
-export function getUserIdFromToken(authHeader: string | undefined): number | null {
+export function getUserIdFromToken(authHeader: string | undefined): string | null {
   if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
   const token = authHeader.slice(7);
   const parts = token.split("_");
-  const id = parseInt(parts[0], 10);
-  return isNaN(id) ? null : id;
+  const id = parts[0];
+  return id || null;
 }
 
-function sanitizeUser(user: typeof usersTable.$inferSelect) {
-  const { password: _password, ...rest } = user;
-  return rest;
+function sanitizeUser(user: any) {
+  const { password: _password, __v: _v, ...rest } = user;
+  return { ...rest, id: user._id.toString() };
 }
 
 export default router;

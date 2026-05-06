@@ -1,46 +1,35 @@
-import { pgTable, text, serial, timestamp, integer, jsonb } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
-import { usersTable } from "./users";
+import mongoose from "mongoose";
 
-export const collegeFormsTable = pgTable("college_forms", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  type: text("type").notNull(), // internship, hackathon, leave, project, assignment, other
-  description: text("description").notNull(),
-  deadline: text("deadline"),
-  fields: jsonb("fields").notNull().default([]),
-  createdById: integer("created_by_id").references(() => usersTable.id, { onDelete: "set null" }),
-  status: text("status").notNull().default("open"), // open, closed
-  submissionCount: integer("submission_count").notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-});
+const collegeFormSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  type: { type: String, required: true },
+  description: { type: String, required: true },
+  deadline: { type: String },
+  fields: { type: [mongoose.Schema.Types.Mixed], required: true, default: [] },
+  createdById: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  status: { type: String, required: true, default: "open" },
+  submissionCount: { type: Number, required: true, default: 0 },
+}, { timestamps: true });
 
-export const formSubmissionsTable = pgTable("form_submissions", {
-  id: serial("id").primaryKey(),
-  formId: integer("form_id").notNull().references(() => collegeFormsTable.id, { onDelete: "cascade" }),
-  userId: integer("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
-  data: jsonb("data").notNull().default({}),
-  status: text("status").notNull().default("pending"), // pending, approved, rejected
-  feedback: text("feedback"),
-  submittedAt: timestamp("submitted_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-});
+const formSubmissionSchema = new mongoose.Schema({
+  formId: { type: mongoose.Schema.Types.ObjectId, ref: "CollegeForm", required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  data: { type: mongoose.Schema.Types.Mixed, required: true, default: {} },
+  status: { type: String, required: true, default: "pending" },
+  feedback: { type: String },
+}, { timestamps: { createdAt: "submittedAt", updatedAt: true } });
 
-export const announcementsTable = pgTable("announcements", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  content: text("content").notNull(),
-  type: text("type").notNull().default("general"), // general, event, deadline, hackathon, job
-  createdById: integer("created_by_id").references(() => usersTable.id, { onDelete: "set null" }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+const announcementSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  content: { type: String, required: true },
+  type: { type: String, required: true, default: "general" },
+  createdById: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+}, { timestamps: { createdAt: true, updatedAt: false } });
 
-export const insertCollegeFormSchema = createInsertSchema(collegeFormsTable).omit({ id: true, createdAt: true, updatedAt: true });
-export type InsertCollegeForm = z.infer<typeof insertCollegeFormSchema>;
-export type CollegeForm = typeof collegeFormsTable.$inferSelect;
+export const CollegeForm = mongoose.model("CollegeForm", collegeFormSchema);
+export const FormSubmission = mongoose.model("FormSubmission", formSubmissionSchema);
+export const Announcement = mongoose.model("Announcement", announcementSchema);
 
-export const insertFormSubmissionSchema = createInsertSchema(formSubmissionsTable).omit({ id: true, submittedAt: true, updatedAt: true });
-export type InsertFormSubmission = z.infer<typeof insertFormSubmissionSchema>;
-export type FormSubmission = typeof formSubmissionsTable.$inferSelect;
+export const collegeFormsTable = CollegeForm;
+export const formSubmissionsTable = FormSubmission;
+export const announcementsTable = Announcement;

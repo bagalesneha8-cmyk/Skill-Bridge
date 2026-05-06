@@ -11,12 +11,12 @@ import { Link } from "wouter";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
-type Question = { id: number; text: string; options: string[]; type: string };
-type Answer = { questionId: number; answer: string };
+type Question = { id: string; text: string; options: string[]; type: string };
+type Answer = { questionId: string; answer: string };
 
 export default function AssessmentDetail() {
   const [, params] = useRoute("/assessments/:id");
-  const id = parseInt(params?.id ?? "0", 10);
+  const id = params?.id ?? "0";
   const [, setLocation] = useLocation();
   const headers = getAuthHeaders();
   const { toast } = useToast();
@@ -31,12 +31,11 @@ export default function AssessmentDetail() {
 
   const { data: assessment, isLoading } = useGetAssessment(id, {
     request: { headers },
-    query: { queryKey: getGetAssessmentQueryKey(id) },
   });
 
   const submitMutation = useSubmitAssessment();
 
-  const assessData = assessment as { id: number; title: string; category: string; type: string; difficulty: string; duration: number; questionCount: number; questions: Question[] } | undefined;
+  const assessData = assessment as { id: string; title: string; category: string; type: string; difficulty: string; duration: number; questionCount: number; questions: Question[] } | undefined;
 
   useEffect(() => {
     if (started && timeLeft > 0) {
@@ -61,7 +60,7 @@ export default function AssessmentDetail() {
     setAnswers([]);
   }
 
-  function selectAnswer(questionId: number, answer: string) {
+  function selectAnswer(questionId: string, answer: string) {
     setAnswers(prev => {
       const without = prev.filter(a => a.questionId !== questionId);
       return [...without, { questionId, answer }];
@@ -71,9 +70,9 @@ export default function AssessmentDetail() {
   function handleSubmit() {
     clearInterval(timerRef.current);
     submitMutation.mutate({ id, data: { answers } }, {
-      onSuccess: (res: { score: number; passed: boolean; certificate?: string }) => {
+      onSuccess: (res: any) => {
         setResult(res);
-        queryClient.invalidateQueries({ queryKey: getListAssessmentResultsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getListAssessmentResultsQueryKey({}) });
       },
       onError: () => {
         toast({ title: "Submission failed", variant: "destructive" });

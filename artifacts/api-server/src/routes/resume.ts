@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
-import { db, resumesTable, userSkillsTable } from "@workspace/db";
+import { Resume, UserSkill } from "@workspace/db";
 import { getUserIdFromToken } from "./auth";
 
 const router: IRouter = Router();
@@ -10,12 +9,13 @@ router.get("/resume", async (req, res): Promise<void> => {
   const userId = getUserIdFromToken(req.headers.authorization);
   if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const [resume] = await db.select().from(resumesTable).where(eq(resumesTable.userId, userId));
+  const resume = await Resume.findOne({ userId });
   if (!resume) {
     res.status(404).json({ error: "No resume found" });
     return;
   }
-  res.json(resume);
+  const obj = resume.toObject();
+  res.json({ ...obj, id: obj._id.toString() });
 });
 
 // POST /resume
@@ -26,41 +26,30 @@ router.post("/resume", async (req, res): Promise<void> => {
   const { filename, summary, experience, education, skills } = req.body;
 
   // Upsert resume
-  const existing = await db.select().from(resumesTable).where(eq(resumesTable.userId, userId));
-
-  let resume;
-  if (existing.length > 0) {
-    [resume] = await db.update(resumesTable).set({
-      filename: filename ?? existing[0].filename,
-      summary,
-      experience: experience ?? [],
-      education: education ?? [],
-      extractedSkills: skills ?? [],
-    }).where(eq(resumesTable.userId, userId)).returning();
-  } else {
-    [resume] = await db.insert(resumesTable).values({
-      userId,
+  let resume = await Resume.findOneAndUpdate(
+    { userId },
+    {
       filename: filename ?? "resume.pdf",
       summary,
       experience: experience ?? [],
       education: education ?? [],
       extractedSkills: skills ?? [],
-    }).returning();
-  }
+    },
+    { new: true, upsert: true }
+  );
 
   // Auto-add extracted skills to user profile
   if (skills && Array.isArray(skills)) {
     for (const skill of skills) {
-      const existing = await db.select().from(userSkillsTable)
-        .where(eq(userSkillsTable.userId, userId))
-        .where(eq(userSkillsTable.skill, skill));
-      if (existing.length === 0) {
-        await db.insert(userSkillsTable).values({ userId, skill, level: "beginner" });
+      const existing = await UserSkill.findOne({ userId, skill });
+      if (!existing) {
+        await UserSkill.create({ userId, skill, level: "beginner" });
       }
     }
   }
 
-  res.status(201).json(resume);
+  const obj = resume.toObject();
+  res.status(201).json({ ...obj, id: obj._id.toString() });
 });
 
 // POST /resume/analyze
@@ -98,13 +87,10 @@ router.post("/resume/analyze", async (req, res): Promise<void> => {
     ].filter(Boolean),
     improvements: [
       !hasMetrics ? "Add specific numbers and percentages to your achievements" : null,
-      wordCount < 300 ? "Expand your experience descriptions with more detail" : null,
-      "Consider adding a summary section tailored to the target role",
-      targetJobTitle ? `Include keywords specific to ${targetJobTitle} roles` : "Tailor keywords to target job",
-    ].filter(Boolean) as string[],
-    missingKeywords: targetJobTitle?.toLowerCase().includes("fullstack")
-      ? ["REST API", "CI/CD", "Microservices", "Test-Driven Development"]
-      : ["Problem-solving", "Communication", "Collaboration", "Agile methodology"],
+      !hasActionVerbs ? "Include more impact-focused action verbs" : null,
+      wordCount < 200 ? "Expand on your project descriptions" : null,
+    ].filter(Boolean),
+    missingKeywords: ["Agile", "CI/CD", "Unit Testing", "System Design"].filter(k => !text.toLowerCase().includes(k.toLowerCase())),
     extractedSkills,
   });
 });

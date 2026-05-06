@@ -1,17 +1,11 @@
-import { pgTable, text, serial, timestamp, integer, boolean } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
-import { usersTable } from "./users";
+import mongoose from "mongoose";
 
-export const userSkillsTable = pgTable("user_skills", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
-  skill: text("skill").notNull(),
-  level: text("level").notNull().default("beginner"), // beginner, intermediate, advanced, expert
-  verified: boolean("verified").notNull().default(false),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+const userSkillSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  skill: { type: String, required: true },
+  level: { type: String, required: true, default: "beginner" },
+  verified: { type: Boolean, required: true, default: false },
+}, { timestamps: { createdAt: true, updatedAt: false } });
 
-export const insertUserSkillSchema = createInsertSchema(userSkillsTable).omit({ id: true, createdAt: true });
-export type InsertUserSkill = z.infer<typeof insertUserSkillSchema>;
-export type UserSkill = typeof userSkillsTable.$inferSelect;
+export const UserSkill = mongoose.model("UserSkill", userSkillSchema);
+export const userSkillsTable = UserSkill;

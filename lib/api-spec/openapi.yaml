@@ -149,7 +149,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "200":
           description: User
@@ -1061,7 +1061,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         name:
           type: string
         email:
@@ -1120,9 +1120,9 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         userId:
-          type: integer
+          type: string
         skill:
           type: string
         level:
@@ -1147,7 +1147,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         title:
           type: string
         company:
@@ -1168,7 +1168,7 @@ components:
         deadline:
           type: string
         postedById:
-          type: integer
+          type: string
         applicantCount:
           type: integer
         createdAt:
@@ -1247,11 +1247,11 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         jobId:
-          type: integer
+          type: string
         userId:
-          type: integer
+          type: string
         status:
           type: string
           enum: [pending, reviewed, shortlisted, rejected, hired]
@@ -1278,7 +1278,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         title:
           type: string
         category:
@@ -1301,7 +1301,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         title:
           type: string
         category:
@@ -1322,7 +1322,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         text:
           type: string
         options:
@@ -1376,7 +1376,7 @@ components:
             type: object
             properties:
               questionId:
-                type: integer
+                type: string
               answer:
                 type: string
             required: [questionId, answer]
@@ -1386,11 +1386,11 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         assessmentId:
-          type: integer
+          type: string
         userId:
-          type: integer
+          type: string
         score:
           type: number
         passed:
@@ -1408,7 +1408,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         skill:
           type: string
         title:
@@ -1468,14 +1468,14 @@ components:
         completedIds:
           type: array
           items:
-            type: integer
+            type: string
       required: [streak, completedItems, totalItems, weeklyGoal, weeklyCompleted, completedIds]
 
     UpdateLearningProgressBody:
       type: object
       properties:
         recommendationId:
-          type: integer
+          type: string
       required: [recommendationId]
 
     # RESUME
@@ -1483,9 +1483,9 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         userId:
-          type: integer
+          type: string
         filename:
           type: string
         summary:
@@ -1631,7 +1631,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         type:
           type: string
         title:
@@ -1661,7 +1661,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         name:
           type: string
         description:
@@ -1678,7 +1678,7 @@ components:
         rank:
           type: integer
         userId:
-          type: integer
+          type: string
         name:
           type: string
         avatar:
@@ -1696,7 +1696,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         title:
           type: string
         description:
@@ -1713,7 +1713,7 @@ components:
           type: string
           enum: [open, in_progress, completed, cancelled]
         clientId:
-          type: integer
+          type: string
         bidCount:
           type: integer
         createdAt:
@@ -1754,11 +1754,11 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         projectId:
-          type: integer
+          type: string
         freelancerId:
-          type: integer
+          type: string
         amount:
           type: string
         proposal:
@@ -1790,7 +1790,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         title:
           type: string
         type:
@@ -1815,7 +1815,7 @@ components:
                 type: boolean
             required: [name, label, type, required]
         createdById:
-          type: integer
+          type: string
         status:
           type: string
           enum: [open, closed]
@@ -1857,11 +1857,11 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         formId:
-          type: integer
+          type: string
         userId:
-          type: integer
+          type: string
         data:
           type: object
         status:
@@ -1881,7 +1881,7 @@ components:
       type: object
       properties:
         formId:
-          type: integer
+          type: string
         data:
           type: object
       required: [formId, data]
@@ -1900,7 +1900,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         title:
           type: string
         content:
@@ -1909,7 +1909,7 @@ components:
           type: string
           enum: [general, event, deadline, hackathon, job]
         createdById:
-          type: integer
+          type: string
         createdAt:
           type: string
       required: [id, title, content, type, createdAt]
@@ -1931,9 +1931,9 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         userId:
-          type: integer
+          type: string
         type:
           type: string
         title:
@@ -1988,7 +1988,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         type:
           type: string
         description:
@@ -1996,7 +1996,7 @@ components:
         timestamp:
           type: string
         userId:
-          type: integer
+          type: string
         userName:
           type: string
       required: [id, type, description, timestamp]

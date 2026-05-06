@@ -1,33 +1,24 @@
-import { pgTable, text, serial, timestamp, integer, boolean, real, jsonb } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
-import { usersTable } from "./users";
+import mongoose from "mongoose";
 
-export const assessmentsTable = pgTable("assessments", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  category: text("category").notNull(),
-  type: text("type").notNull(), // mcq, coding, aptitude, communication
-  difficulty: text("difficulty").notNull().default("medium"), // easy, medium, hard
-  duration: integer("duration").notNull().default(30), // minutes
-  questions: jsonb("questions").notNull().default([]),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+const assessmentSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  category: { type: String, required: true },
+  type: { type: String, required: true },
+  difficulty: { type: String, required: true, default: "medium" },
+  duration: { type: Number, required: true, default: 30 },
+  questions: { type: [mongoose.Schema.Types.Mixed], required: true, default: [] },
+}, { timestamps: { createdAt: true, updatedAt: false } });
 
-export const assessmentResultsTable = pgTable("assessment_results", {
-  id: serial("id").primaryKey(),
-  assessmentId: integer("assessment_id").notNull().references(() => assessmentsTable.id, { onDelete: "cascade" }),
-  userId: integer("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
-  score: real("score").notNull().default(0),
-  passed: boolean("passed").notNull().default(false),
-  certificate: text("certificate"),
-  completedAt: timestamp("completed_at", { withTimezone: true }).notNull().defaultNow(),
-});
+const assessmentResultSchema = new mongoose.Schema({
+  assessmentId: { type: mongoose.Schema.Types.ObjectId, ref: "Assessment", required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  score: { type: Number, required: true, default: 0 },
+  passed: { type: Boolean, required: true, default: false },
+  certificate: { type: String },
+}, { timestamps: { createdAt: "completedAt", updatedAt: false } });
 
-export const insertAssessmentSchema = createInsertSchema(assessmentsTable).omit({ id: true, createdAt: true });
-export type InsertAssessment = z.infer<typeof insertAssessmentSchema>;
-export type Assessment = typeof assessmentsTable.$inferSelect;
+export const Assessment = mongoose.model("Assessment", assessmentSchema);
+export const AssessmentResult = mongoose.model("AssessmentResult", assessmentResultSchema);
 
-export const insertAssessmentResultSchema = createInsertSchema(assessmentResultsTable).omit({ id: true, completedAt: true });
-export type InsertAssessmentResult = z.infer<typeof insertAssessmentResultSchema>;
-export type AssessmentResult = typeof assessmentResultsTable.$inferSelect;
+export const assessmentsTable = Assessment;
+export const assessmentResultsTable = AssessmentResult;

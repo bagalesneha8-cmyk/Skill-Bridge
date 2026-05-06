@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, sql } from "drizzle-orm";
-import { db, collegeFormsTable, formSubmissionsTable, announcementsTable, usersTable } from "@workspace/db";
+import { CollegeForm, FormSubmission, Announcement, User } from "@workspace/db";
 import { getUserIdFromToken } from "./auth";
 
 const router: IRouter = Router();
@@ -9,11 +8,15 @@ const router: IRouter = Router();
 router.get("/college/forms", async (req, res): Promise<void> => {
   const { type, status } = req.query as Record<string, string>;
 
-  let forms = db.select().from(collegeFormsTable).$dynamic();
-  if (type) forms = forms.where(eq(collegeFormsTable.type, type));
-  if (status) forms = forms.where(eq(collegeFormsTable.status, status));
+  const filter: any = {};
+  if (type) filter.type = type;
+  if (status) filter.status = status;
 
-  res.json(await forms.orderBy(sql`${collegeFormsTable.createdAt} desc`));
+  const forms = await CollegeForm.find(filter).sort({ createdAt: -1 });
+  res.json(forms.map(f => {
+    const obj = f.toObject();
+    return { ...obj, id: obj._id.toString() };
+  }));
 });
 
 // POST /college/forms
@@ -27,22 +30,24 @@ router.post("/college/forms", async (req, res): Promise<void> => {
     return;
   }
 
-  const [form] = await db.insert(collegeFormsTable).values({
+  const form = await CollegeForm.create({
     title, type, description, deadline,
     fields: fields ?? [],
     createdById: userId,
     status: "open",
-  }).returning();
+  });
 
-  res.status(201).json(form);
+  const obj = form.toObject();
+  res.status(201).json({ ...obj, id: obj._id.toString() });
 });
 
 // GET /college/forms/:id
 router.get("/college/forms/:id", async (req, res): Promise<void> => {
-  const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
-  const [form] = await db.select().from(collegeFormsTable).where(eq(collegeFormsTable.id, id));
+  const id = req.params.id;
+  const form = await CollegeForm.findById(id);
   if (!form) { res.status(404).json({ error: "Form not found" }); return; }
-  res.json(form);
+  const obj = form.toObject();
+  res.json({ ...obj, id: obj._id.toString() });
 });
 
 // GET /college/submissions
@@ -52,42 +57,43 @@ router.get("/college/submissions", async (req, res): Promise<void> => {
 
   const { formId, status } = req.query as Record<string, string>;
 
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
+  const user = await User.findById(userId);
   if (!user) { res.status(404).json({ error: "User not found" }); return; }
 
-  let q;
+  let submissions;
   if (user.role === "faculty" || user.role === "admin") {
-    q = db.select({
-      submission: formSubmissionsTable,
-      form: collegeFormsTable,
-      submitter: usersTable,
-    })
-      .from(formSubmissionsTable)
-      .innerJoin(collegeFormsTable, eq(formSubmissionsTable.formId, collegeFormsTable.id))
-      .innerJoin(usersTable, eq(formSubmissionsTable.userId, usersTable.id)).$dynamic();
+    const filter: any = {};
+    if (formId) filter.formId = formId;
+    if (status) filter.status = status;
 
-    if (formId) q = q.where(eq(formSubmissionsTable.formId, parseInt(formId, 10)));
-    if (status) q = q.where(eq(formSubmissionsTable.status, status));
+    submissions = await FormSubmission.find(filter)
+      .populate("formId")
+      .populate("userId", "-password");
 
-    const results = await q;
-    res.json(results.map(r => ({
-      ...r.submission,
-      form: r.form,
-      user: { ...r.submitter, password: undefined },
-    })));
+    res.json(submissions.map(s => {
+      const obj = s.toObject();
+      return {
+        ...obj,
+        id: obj._id.toString(),
+        form: obj.formId,
+        user: obj.userId,
+      };
+    }));
     return;
   }
 
   // Student: own submissions
-  const results = await db.select({
-    submission: formSubmissionsTable,
-    form: collegeFormsTable,
-  })
-    .from(formSubmissionsTable)
-    .innerJoin(collegeFormsTable, eq(formSubmissionsTable.formId, collegeFormsTable.id))
-    .where(eq(formSubmissionsTable.userId, userId));
+  submissions = await FormSubmission.find({ userId })
+    .populate("formId");
 
-  res.json(results.map(r => ({ ...r.submission, form: r.form })));
+  res.json(submissions.map(s => {
+    const obj = s.toObject();
+    return {
+      ...obj,
+      id: obj._id.toString(),
+      form: obj.formId,
+    };
+  }));
 });
 
 // POST /college/submissions
@@ -101,38 +107,30 @@ router.post("/college/submissions", async (req, res): Promise<void> => {
     return;
   }
 
-  const [submission] = await db.insert(formSubmissionsTable).values({
-    formId, userId, data: data ?? {}, status: "pending",
-  }).returning();
+  const submission = await FormSubmission.create({
+    formId,
+    userId,
+    data: data ?? {},
+    status: "pending",
+  });
 
-  await db.update(collegeFormsTable).set({
-    submissionCount: sql`${collegeFormsTable.submissionCount} + 1`,
-  }).where(eq(collegeFormsTable.id, formId));
+  await CollegeForm.findByIdAndUpdate(formId, { $inc: { submissionCount: 1 } });
 
-  res.status(201).json(submission);
-});
-
-// PATCH /college/submissions/:id
-router.patch("/college/submissions/:id", async (req, res): Promise<void> => {
-  const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
-  const { status, feedback } = req.body;
-
-  const [submission] = await db.update(formSubmissionsTable)
-    .set({ status, feedback })
-    .where(eq(formSubmissionsTable.id, id))
-    .returning();
-
-  if (!submission) { res.status(404).json({ error: "Submission not found" }); return; }
-  res.json(submission);
+  const obj = submission.toObject();
+  res.status(201).json({ ...obj, id: obj._id.toString() });
 });
 
 // GET /college/announcements
-router.get("/college/announcements", async (req, res): Promise<void> => {
-  const announcements = await db.select()
-    .from(announcementsTable)
-    .orderBy(sql`${announcementsTable.createdAt} desc`)
-    .limit(20);
-  res.json(announcements);
+router.get("/college/announcements", async (_req, res): Promise<void> => {
+  const announcements = await Announcement.find()
+    .sort({ createdAt: -1 })
+    .limit(20)
+    .populate("createdById", "name role");
+
+  res.json(announcements.map(a => {
+    const obj = a.toObject();
+    return { ...obj, id: obj._id.toString() };
+  }));
 });
 
 // POST /college/announcements
@@ -141,16 +139,18 @@ router.post("/college/announcements", async (req, res): Promise<void> => {
   if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
   const { title, content, type } = req.body;
-  if (!title || !content || !type) {
-    res.status(400).json({ error: "title, content, type required" });
+  if (!title || !content) {
+    res.status(400).json({ error: "title, content required" });
     return;
   }
 
-  const [announcement] = await db.insert(announcementsTable).values({
-    title, content, type, createdById: userId,
-  }).returning();
+  const announcement = await Announcement.create({
+    title, content, type: type ?? "general",
+    createdById: userId,
+  });
 
-  res.status(201).json(announcement);
+  const obj = announcement.toObject();
+  res.status(201).json({ ...obj, id: obj._id.toString() });
 });
 
 export default router;

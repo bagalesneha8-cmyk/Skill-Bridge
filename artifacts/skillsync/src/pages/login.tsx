@@ -32,8 +32,8 @@ export default function Login() {
 
   function onSubmit(data: FormData) {
     loginMutation.mutate({ data }, {
-      onSuccess: (result: { user: { id: number; name: string; email: string; role: string; avatar: string | null; bio: string | null; institution: string | null; location: string | null; xp: number; level: number; streak: number; createdAt: string; updatedAt: string }; token: string }) => {
-        login(result.token, result.user as Parameters<typeof login>[1]);
+      onSuccess: (result: any) => {
+        login(result.token, result.user);
         setLocation("/dashboard");
       },
       onError: () => {

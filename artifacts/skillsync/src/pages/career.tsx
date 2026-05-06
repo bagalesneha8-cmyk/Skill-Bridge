@@ -123,7 +123,7 @@ export default function Career() {
                 {Array.isArray(timeline) && timeline.length === 0 && (
                   <p className="text-muted-foreground text-sm text-center py-4">No activity yet. Apply to jobs and take assessments to build your timeline.</p>
                 )}
-                {Array.isArray(timeline) && timeline.map((event: { id: number; type: string; title: string; description: string; date: string }) => (
+                {Array.isArray(timeline) && timeline.map((event: { id: string; type: string; title: string; description: string; date: string }) => (
                   <div key={event.id} className="flex items-start gap-3" data-testid={`timeline-event-${event.id}`}>
                     <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0 mt-0.5">
                       {event.type === "application" ? <Briefcase className="w-4 h-4 text-primary" /> : <CheckCircle className="w-4 h-4 text-green-500" />}
@@ -189,7 +189,7 @@ export default function Career() {
             {loadingBadges ? <Skeleton className="h-32" /> : (
               g?.badges && g.badges.length > 0 ? (
                 <div className="space-y-2">
-                  {g.badges.map((badge) => (
+                  {g.badges.map((badge: { id: string; name: string; description: string }) => (
                     <div key={badge.id} className="flex items-center gap-3 p-2 bg-secondary rounded-lg" data-testid={`badge-${badge.id}`}>
                       <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                         <Trophy className="w-4 h-4 text-primary" />

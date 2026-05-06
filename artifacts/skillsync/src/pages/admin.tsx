@@ -30,12 +30,10 @@ export default function Admin() {
 
   const { data: stats, isLoading: loadingStats } = useGetPlatformStats({
     request: { headers },
-    query: { queryKey: getGetPlatformStatsQueryKey() },
   });
 
-  const { data: usersData, isLoading: loadingUsers } = useListUsers({
+  const { data: usersData, isLoading: loadingUsers } = useListUsers(undefined, {
     request: { headers },
-    query: { queryKey: getListUsersQueryKey() },
   });
 
   const s = stats as { totalUsers?: number; totalJobs?: number; totalApplications?: number; totalAssessments?: number; totalFreelanceProjects?: number; usersByRole?: Record<string, number> } | undefined;
@@ -139,7 +137,7 @@ export default function Admin() {
                 </tr>
               </thead>
               <tbody>
-                {((usersData as { users?: Array<{ id: number; name: string; email: string; role: string; institution?: string; xp: number; level: number }> })?.users ?? []).map(u => (
+                {((usersData as { users?: Array<{ id: string; name: string; email: string; role: string; institution?: string; xp: number; level: number }> })?.users ?? []).map(u => (
                   <tr key={u.id} className="border-b border-border/50 hover:bg-secondary/50 transition-colors" data-testid={`row-user-${u.id}`}>
                     <td className="py-2 pr-4 font-medium">{u.name}</td>
                     <td className="py-2 pr-4 text-muted-foreground">{u.email}</td>

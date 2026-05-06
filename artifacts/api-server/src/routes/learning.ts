@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, sql, inArray } from "drizzle-orm";
-import { db, learningRecommendationsTable, learningProgressTable, userSkillsTable } from "@workspace/db";
+import { LearningRecommendation, LearningProgress, UserSkill } from "@workspace/db";
 import { getUserIdFromToken } from "./auth";
 
 const router: IRouter = Router();
@@ -23,18 +22,19 @@ router.get("/learning/recommendations", async (req, res): Promise<void> => {
   const userId = getUserIdFromToken(req.headers.authorization);
   if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  let recommendations = await db.select().from(learningRecommendationsTable)
-    .where(eq(learningRecommendationsTable.userId, userId));
+  let recommendations = await LearningRecommendation.find({ userId });
 
   if (recommendations.length === 0) {
     // Create default recommendations for user
-    const inserted = await db.insert(learningRecommendationsTable).values(
-      DEFAULT_RECOMMENDATIONS.map(r => ({ ...r, userId }))
-    ).returning();
-    recommendations = inserted;
+    recommendations = await LearningRecommendation.insertMany(
+      DEFAULT_RECOMMENDATIONS.map(r => ({ ...r, userId: userId as any }))
+    );
   }
 
-  res.json(recommendations);
+  res.json(recommendations.map(r => {
+    const obj = r.toObject();
+    return { ...obj, id: obj._id.toString() };
+  }));
 });
 
 // GET /learning/roadmap
@@ -42,7 +42,7 @@ router.get("/learning/roadmap", async (req, res): Promise<void> => {
   const userId = getUserIdFromToken(req.headers.authorization);
   if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const userSkills = await db.select().from(userSkillsTable).where(eq(userSkillsTable.userId, userId));
+  const userSkills = await UserSkill.find({ userId });
   const skillNames = userSkills.map(s => s.skill);
 
   const roadmap = {
@@ -90,76 +90,20 @@ router.get("/learning/progress", async (req, res): Promise<void> => {
   const userId = getUserIdFromToken(req.headers.authorization);
   if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  let [progress] = await db.select().from(learningProgressTable).where(eq(learningProgressTable.userId, userId));
+  let progress = await LearningProgress.findOne({ userId });
 
   if (!progress) {
-    [progress] = await db.insert(learningProgressTable).values({
+    progress = await LearningProgress.create({
       userId,
       streak: 0,
       completedItems: 0,
       weeklyGoal: 5,
       weeklyCompleted: 0,
-    }).returning();
+    });
   }
 
-  const completedRecs = await db.select().from(learningRecommendationsTable)
-    .where(eq(learningRecommendationsTable.userId, userId))
-    .where(eq(learningRecommendationsTable.completed, true));
-
-  const allRecs = await db.select().from(learningRecommendationsTable)
-    .where(eq(learningRecommendationsTable.userId, userId));
-
-  res.json({
-    ...progress,
-    completedItems: completedRecs.length,
-    totalItems: allRecs.length,
-    completedIds: completedRecs.map(r => r.id),
-  });
-});
-
-// POST /learning/progress
-router.post("/learning/progress", async (req, res): Promise<void> => {
-  const userId = getUserIdFromToken(req.headers.authorization);
-  if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
-
-  const { recommendationId } = req.body;
-  if (!recommendationId) {
-    res.status(400).json({ error: "recommendationId required" });
-    return;
-  }
-
-  await db.update(learningRecommendationsTable)
-    .set({ completed: true })
-    .where(eq(learningRecommendationsTable.id, recommendationId))
-    .where(eq(learningRecommendationsTable.userId, userId));
-
-  let [progress] = await db.select().from(learningProgressTable).where(eq(learningProgressTable.userId, userId));
-
-  if (!progress) {
-    [progress] = await db.insert(learningProgressTable).values({
-      userId, streak: 1, completedItems: 1, weeklyGoal: 5, weeklyCompleted: 1,
-    }).returning();
-  } else {
-    [progress] = await db.update(learningProgressTable).set({
-      completedItems: sql`${learningProgressTable.completedItems} + 1`,
-      weeklyCompleted: sql`${learningProgressTable.weeklyCompleted} + 1`,
-      streak: sql`${learningProgressTable.streak} + 1`,
-    }).where(eq(learningProgressTable.userId, userId)).returning();
-  }
-
-  const completedRecs = await db.select().from(learningRecommendationsTable)
-    .where(eq(learningRecommendationsTable.userId, userId))
-    .where(eq(learningRecommendationsTable.completed, true));
-
-  const allRecs = await db.select().from(learningRecommendationsTable)
-    .where(eq(learningRecommendationsTable.userId, userId));
-
-  res.json({
-    ...progress,
-    completedItems: completedRecs.length,
-    totalItems: allRecs.length,
-    completedIds: completedRecs.map(r => r.id),
-  });
+  const obj = progress.toObject();
+  res.json({ ...obj, id: obj._id.toString() });
 });
 
 export default router;

@@ -41,7 +41,7 @@ export const LoginBody = zod.object({
 
 export const LoginResponse = zod.object({
   user: zod.object({
-    id: zod.number(),
+    id: zod.string(),
     name: zod.string(),
     email: zod.string(),
     role: zod.enum([
@@ -74,7 +74,7 @@ export const LogoutResponse = zod.object({
  * @summary Get current user
  */
 export const GetMeResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   name: zod.string(),
   email: zod.string(),
   role: zod.enum([
@@ -106,7 +106,7 @@ export const ListUsersQueryParams = zod.object({
 export const ListUsersResponse = zod.object({
   users: zod.array(
     zod.object({
-      id: zod.number(),
+      id: zod.string(),
       name: zod.string(),
       email: zod.string(),
       role: zod.enum([
@@ -135,11 +135,11 @@ export const ListUsersResponse = zod.object({
  * @summary Get user by ID
  */
 export const GetUserParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const GetUserResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   name: zod.string(),
   email: zod.string(),
   role: zod.enum([
@@ -175,7 +175,7 @@ export const UpdateUserBody = zod.object({
 });
 
 export const UpdateUserResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   name: zod.string(),
   email: zod.string(),
   role: zod.enum([
@@ -203,8 +203,8 @@ export const GetUserSkillsParams = zod.object({
 });
 
 export const GetUserSkillsResponseItem = zod.object({
-  id: zod.number(),
-  userId: zod.number(),
+  id: zod.string(),
+  userId: zod.string(),
   skill: zod.string(),
   level: zod.enum(["beginner", "intermediate", "advanced", "expert"]),
   verified: zod.boolean().optional(),
@@ -237,7 +237,7 @@ export const ListJobsQueryParams = zod.object({
 export const ListJobsResponse = zod.object({
   jobs: zod.array(
     zod.object({
-      id: zod.number(),
+      id: zod.string(),
       title: zod.string(),
       company: zod.string(),
       type: zod.enum(["job", "internship", "freelance", "hackathon"]),
@@ -246,7 +246,7 @@ export const ListJobsResponse = zod.object({
       location: zod.string().optional(),
       salary: zod.string().optional(),
       deadline: zod.string().optional(),
-      postedById: zod.number().optional(),
+      postedById: zod.string().optional(),
       applicantCount: zod.number().optional(),
       createdAt: zod.string().optional(),
       status: zod.enum(["open", "closed"]),
@@ -279,7 +279,7 @@ export const GetJobParams = zod.object({
 });
 
 export const GetJobResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   company: zod.string(),
   type: zod.enum(["job", "internship", "freelance", "hackathon"]),
@@ -288,7 +288,7 @@ export const GetJobResponse = zod.object({
   location: zod.string().optional(),
   salary: zod.string().optional(),
   deadline: zod.string().optional(),
-  postedById: zod.number().optional(),
+  postedById: zod.string().optional(),
   applicantCount: zod.number().optional(),
   createdAt: zod.string().optional(),
   status: zod.enum(["open", "closed"]),
@@ -311,7 +311,7 @@ export const ApplyJobBody = zod.object({
  */
 export const GetJobMatchesResponseItem = zod.object({
   job: zod.object({
-    id: zod.number(),
+    id: zod.string(),
     title: zod.string(),
     company: zod.string(),
     type: zod.enum(["job", "internship", "freelance", "hackathon"]),
@@ -320,7 +320,7 @@ export const GetJobMatchesResponseItem = zod.object({
     location: zod.string().optional(),
     salary: zod.string().optional(),
     deadline: zod.string().optional(),
-    postedById: zod.number().optional(),
+    postedById: zod.string().optional(),
     applicantCount: zod.number().optional(),
     createdAt: zod.string().optional(),
     status: zod.enum(["open", "closed"]),
@@ -340,15 +340,15 @@ export const ListApplicationsQueryParams = zod.object({
 });
 
 export const ListApplicationsResponseItem = zod.object({
-  id: zod.number(),
-  jobId: zod.number(),
-  userId: zod.number(),
+  id: zod.string(),
+  jobId: zod.string(),
+  userId: zod.string(),
   status: zod.enum(["pending", "reviewed", "shortlisted", "rejected", "hired"]),
   coverLetter: zod.string().optional(),
   appliedAt: zod.string(),
   job: zod
     .object({
-      id: zod.number(),
+      id: zod.string(),
       title: zod.string(),
       company: zod.string(),
       type: zod.enum(["job", "internship", "freelance", "hackathon"]),
@@ -357,7 +357,7 @@ export const ListApplicationsResponseItem = zod.object({
       location: zod.string().optional(),
       salary: zod.string().optional(),
       deadline: zod.string().optional(),
-      postedById: zod.number().optional(),
+      postedById: zod.string().optional(),
       applicantCount: zod.number().optional(),
       createdAt: zod.string().optional(),
       status: zod.enum(["open", "closed"]),
@@ -365,7 +365,7 @@ export const ListApplicationsResponseItem = zod.object({
     .optional(),
   user: zod
     .object({
-      id: zod.number(),
+      id: zod.string(),
       name: zod.string(),
       email: zod.string(),
       role: zod.enum([
@@ -400,15 +400,15 @@ export const UpdateApplicationBody = zod.object({
 });
 
 export const UpdateApplicationResponse = zod.object({
-  id: zod.number(),
-  jobId: zod.number(),
-  userId: zod.number(),
+  id: zod.string(),
+  jobId: zod.string(),
+  userId: zod.string(),
   status: zod.enum(["pending", "reviewed", "shortlisted", "rejected", "hired"]),
   coverLetter: zod.string().optional(),
   appliedAt: zod.string(),
   job: zod
     .object({
-      id: zod.number(),
+      id: zod.string(),
       title: zod.string(),
       company: zod.string(),
       type: zod.enum(["job", "internship", "freelance", "hackathon"]),
@@ -417,7 +417,7 @@ export const UpdateApplicationResponse = zod.object({
       location: zod.string().optional(),
       salary: zod.string().optional(),
       deadline: zod.string().optional(),
-      postedById: zod.number().optional(),
+      postedById: zod.string().optional(),
       applicantCount: zod.number().optional(),
       createdAt: zod.string().optional(),
       status: zod.enum(["open", "closed"]),
@@ -425,7 +425,7 @@ export const UpdateApplicationResponse = zod.object({
     .optional(),
   user: zod
     .object({
-      id: zod.number(),
+      id: zod.string(),
       name: zod.string(),
       email: zod.string(),
       role: zod.enum([
@@ -455,7 +455,7 @@ export const ListAssessmentsQueryParams = zod.object({
 });
 
 export const ListAssessmentsResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   category: zod.string(),
   type: zod.enum(["mcq", "coding", "aptitude", "communication"]),
@@ -493,7 +493,7 @@ export const GetAssessmentParams = zod.object({
 });
 
 export const GetAssessmentResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   category: zod.string(),
   type: zod.string(),
@@ -501,7 +501,7 @@ export const GetAssessmentResponse = zod.object({
   duration: zod.number(),
   questions: zod.array(
     zod.object({
-      id: zod.number(),
+      id: zod.string(),
       text: zod.string(),
       options: zod.array(zod.string()).optional(),
       type: zod.enum(["mcq", "coding", "text"]),
@@ -519,23 +519,23 @@ export const SubmitAssessmentParams = zod.object({
 export const SubmitAssessmentBody = zod.object({
   answers: zod.array(
     zod.object({
-      questionId: zod.number(),
+      questionId: zod.string(),
       answer: zod.string(),
     }),
   ),
 });
 
 export const SubmitAssessmentResponse = zod.object({
-  id: zod.number(),
-  assessmentId: zod.number(),
-  userId: zod.number(),
+  id: zod.string(),
+  assessmentId: zod.string(),
+  userId: zod.string(),
   score: zod.number(),
   passed: zod.boolean(),
   certificate: zod.string().optional(),
   completedAt: zod.string(),
   assessment: zod
     .object({
-      id: zod.number(),
+      id: zod.string(),
       title: zod.string(),
       category: zod.string(),
       type: zod.enum(["mcq", "coding", "aptitude", "communication"]),
@@ -551,16 +551,16 @@ export const SubmitAssessmentResponse = zod.object({
  * @summary Get assessment results for current user
  */
 export const ListAssessmentResultsResponseItem = zod.object({
-  id: zod.number(),
-  assessmentId: zod.number(),
-  userId: zod.number(),
+  id: zod.string(),
+  assessmentId: zod.string(),
+  userId: zod.string(),
   score: zod.number(),
   passed: zod.boolean(),
   certificate: zod.string().optional(),
   completedAt: zod.string(),
   assessment: zod
     .object({
-      id: zod.number(),
+      id: zod.string(),
       title: zod.string(),
       category: zod.string(),
       type: zod.enum(["mcq", "coding", "aptitude", "communication"]),
@@ -579,7 +579,7 @@ export const ListAssessmentResultsResponse = zod.array(
  * @summary Get personalized learning recommendations
  */
 export const GetLearningRecommendationsResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   skill: zod.string(),
   title: zod.string(),
   type: zod.enum(["course", "youtube", "documentation", "platform", "roadmap"]),
@@ -617,14 +617,14 @@ export const GetLearningProgressResponse = zod.object({
   totalItems: zod.number(),
   weeklyGoal: zod.number(),
   weeklyCompleted: zod.number(),
-  completedIds: zod.array(zod.number()),
+  completedIds: zod.array(zod.string()),
 });
 
 /**
  * @summary Mark a learning item as complete
  */
 export const UpdateLearningProgressBody = zod.object({
-  recommendationId: zod.number(),
+  recommendationId: zod.string(),
 });
 
 export const UpdateLearningProgressResponse = zod.object({
@@ -633,15 +633,15 @@ export const UpdateLearningProgressResponse = zod.object({
   totalItems: zod.number(),
   weeklyGoal: zod.number(),
   weeklyCompleted: zod.number(),
-  completedIds: zod.array(zod.number()),
+  completedIds: zod.array(zod.string()),
 });
 
 /**
  * @summary Get current user resume info
  */
 export const GetResumeResponse = zod.object({
-  id: zod.number(),
-  userId: zod.number(),
+  id: zod.string(),
+  userId: zod.string(),
   filename: zod.string().optional(),
   summary: zod.string().optional(),
   experience: zod
@@ -734,7 +734,7 @@ export const GetCareerStatsResponse = zod.object({
  * @summary Get career activity timeline
  */
 export const GetCareerTimelineResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   type: zod.string(),
   title: zod.string(),
   description: zod.string().optional(),
@@ -752,7 +752,7 @@ export const GetUserBadgesResponse = zod.object({
   level: zod.number(),
   badges: zod.array(
     zod.object({
-      id: zod.number(),
+      id: zod.string(),
       name: zod.string(),
       description: zod.string(),
       icon: zod.string(),
@@ -767,7 +767,7 @@ export const GetUserBadgesResponse = zod.object({
  */
 export const GetLeaderboardResponseItem = zod.object({
   rank: zod.number(),
-  userId: zod.number(),
+  userId: zod.string(),
   name: zod.string(),
   avatar: zod.string().optional(),
   xp: zod.number(),
@@ -788,14 +788,14 @@ export const ListFreelanceProjectsQueryParams = zod.object({
 export const ListFreelanceProjectsResponse = zod.object({
   projects: zod.array(
     zod.object({
-      id: zod.number(),
+      id: zod.string(),
       title: zod.string(),
       description: zod.string(),
       budget: zod.string(),
       skills: zod.array(zod.string()),
       deadline: zod.string().optional(),
       status: zod.enum(["open", "in_progress", "completed", "cancelled"]),
-      clientId: zod.number(),
+      clientId: zod.string(),
       bidCount: zod.number().optional(),
       createdAt: zod.string().optional(),
     }),
@@ -823,14 +823,14 @@ export const GetFreelanceProjectParams = zod.object({
 });
 
 export const GetFreelanceProjectResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   description: zod.string(),
   budget: zod.string(),
   skills: zod.array(zod.string()),
   deadline: zod.string().optional(),
   status: zod.enum(["open", "in_progress", "completed", "cancelled"]),
-  clientId: zod.number(),
+  clientId: zod.string(),
   bidCount: zod.number().optional(),
   createdAt: zod.string().optional(),
 });
@@ -843,9 +843,9 @@ export const ListBidsParams = zod.object({
 });
 
 export const ListBidsResponseItem = zod.object({
-  id: zod.number(),
-  projectId: zod.number(),
-  freelancerId: zod.number(),
+  id: zod.string(),
+  projectId: zod.string(),
+  freelancerId: zod.string(),
   amount: zod.string(),
   proposal: zod.string(),
   deliveryTime: zod.string().optional(),
@@ -853,7 +853,7 @@ export const ListBidsResponseItem = zod.object({
   createdAt: zod.string(),
   freelancer: zod
     .object({
-      id: zod.number(),
+      id: zod.string(),
       name: zod.string(),
       email: zod.string(),
       role: zod.enum([
@@ -898,7 +898,7 @@ export const ListCollegeFormsQueryParams = zod.object({
 });
 
 export const ListCollegeFormsResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   type: zod.enum([
     "internship",
@@ -920,7 +920,7 @@ export const ListCollegeFormsResponseItem = zod.object({
       }),
     )
     .optional(),
-  createdById: zod.number().optional(),
+  createdById: zod.string().optional(),
   status: zod.enum(["open", "closed"]),
   submissionCount: zod.number().optional(),
   createdAt: zod.string().optional(),
@@ -960,7 +960,7 @@ export const GetCollegeFormParams = zod.object({
 });
 
 export const GetCollegeFormResponse = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   type: zod.enum([
     "internship",
@@ -982,7 +982,7 @@ export const GetCollegeFormResponse = zod.object({
       }),
     )
     .optional(),
-  createdById: zod.number().optional(),
+  createdById: zod.string().optional(),
   status: zod.enum(["open", "closed"]),
   submissionCount: zod.number().optional(),
   createdAt: zod.string().optional(),
@@ -997,16 +997,16 @@ export const ListSubmissionsQueryParams = zod.object({
 });
 
 export const ListSubmissionsResponseItem = zod.object({
-  id: zod.number(),
-  formId: zod.number(),
-  userId: zod.number(),
+  id: zod.string(),
+  formId: zod.string(),
+  userId: zod.string(),
   data: zod.object({}).passthrough(),
   status: zod.enum(["pending", "approved", "rejected"]),
   feedback: zod.string().optional(),
   submittedAt: zod.string(),
   form: zod
     .object({
-      id: zod.number(),
+      id: zod.string(),
       title: zod.string(),
       type: zod.enum([
         "internship",
@@ -1028,7 +1028,7 @@ export const ListSubmissionsResponseItem = zod.object({
           }),
         )
         .optional(),
-      createdById: zod.number().optional(),
+      createdById: zod.string().optional(),
       status: zod.enum(["open", "closed"]),
       submissionCount: zod.number().optional(),
       createdAt: zod.string().optional(),
@@ -1036,7 +1036,7 @@ export const ListSubmissionsResponseItem = zod.object({
     .optional(),
   user: zod
     .object({
-      id: zod.number(),
+      id: zod.string(),
       name: zod.string(),
       email: zod.string(),
       role: zod.enum([
@@ -1063,7 +1063,7 @@ export const ListSubmissionsResponse = zod.array(ListSubmissionsResponseItem);
  * @summary Submit a college form
  */
 export const CreateSubmissionBody = zod.object({
-  formId: zod.number(),
+  formId: zod.string(),
   data: zod.object({}).passthrough(),
 });
 
@@ -1080,16 +1080,16 @@ export const UpdateSubmissionBody = zod.object({
 });
 
 export const UpdateSubmissionResponse = zod.object({
-  id: zod.number(),
-  formId: zod.number(),
-  userId: zod.number(),
+  id: zod.string(),
+  formId: zod.string(),
+  userId: zod.string(),
   data: zod.object({}).passthrough(),
   status: zod.enum(["pending", "approved", "rejected"]),
   feedback: zod.string().optional(),
   submittedAt: zod.string(),
   form: zod
     .object({
-      id: zod.number(),
+      id: zod.string(),
       title: zod.string(),
       type: zod.enum([
         "internship",
@@ -1111,7 +1111,7 @@ export const UpdateSubmissionResponse = zod.object({
           }),
         )
         .optional(),
-      createdById: zod.number().optional(),
+      createdById: zod.string().optional(),
       status: zod.enum(["open", "closed"]),
       submissionCount: zod.number().optional(),
       createdAt: zod.string().optional(),
@@ -1119,7 +1119,7 @@ export const UpdateSubmissionResponse = zod.object({
     .optional(),
   user: zod
     .object({
-      id: zod.number(),
+      id: zod.string(),
       name: zod.string(),
       email: zod.string(),
       role: zod.enum([
@@ -1145,11 +1145,11 @@ export const UpdateSubmissionResponse = zod.object({
  * @summary List announcements
  */
 export const ListAnnouncementsResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   title: zod.string(),
   content: zod.string(),
   type: zod.enum(["general", "event", "deadline", "hackathon", "job"]),
-  createdById: zod.number().optional(),
+  createdById: zod.string().optional(),
   createdAt: zod.string(),
 });
 export const ListAnnouncementsResponse = zod.array(
@@ -1169,8 +1169,8 @@ export const CreateAnnouncementBody = zod.object({
  * @summary List notifications for current user
  */
 export const ListNotificationsResponseItem = zod.object({
-  id: zod.number(),
-  userId: zod.number(),
+  id: zod.string(),
+  userId: zod.string(),
   type: zod.string(),
   title: zod.string(),
   message: zod.string(),
@@ -1189,8 +1189,8 @@ export const MarkNotificationReadParams = zod.object({
 });
 
 export const MarkNotificationReadResponse = zod.object({
-  id: zod.number(),
-  userId: zod.number(),
+  id: zod.string(),
+  userId: zod.string(),
   type: zod.string(),
   title: zod.string(),
   message: zod.string(),
@@ -1222,7 +1222,7 @@ export const GetDashboardSummaryResponse = zod.object({
   recentJobs: zod
     .array(
       zod.object({
-        id: zod.number(),
+        id: zod.string(),
         title: zod.string(),
         company: zod.string(),
         type: zod.enum(["job", "internship", "freelance", "hackathon"]),
@@ -1231,7 +1231,7 @@ export const GetDashboardSummaryResponse = zod.object({
         location: zod.string().optional(),
         salary: zod.string().optional(),
         deadline: zod.string().optional(),
-        postedById: zod.number().optional(),
+        postedById: zod.string().optional(),
         applicantCount: zod.number().optional(),
         createdAt: zod.string().optional(),
         status: zod.enum(["open", "closed"]),
@@ -1242,7 +1242,7 @@ export const GetDashboardSummaryResponse = zod.object({
     .array(
       zod.object({
         job: zod.object({
-          id: zod.number(),
+          id: zod.string(),
           title: zod.string(),
           company: zod.string(),
           type: zod.enum(["job", "internship", "freelance", "hackathon"]),
@@ -1251,7 +1251,7 @@ export const GetDashboardSummaryResponse = zod.object({
           location: zod.string().optional(),
           salary: zod.string().optional(),
           deadline: zod.string().optional(),
-          postedById: zod.number().optional(),
+          postedById: zod.string().optional(),
           applicantCount: zod.number().optional(),
           createdAt: zod.string().optional(),
           status: zod.enum(["open", "closed"]),
@@ -1265,11 +1265,11 @@ export const GetDashboardSummaryResponse = zod.object({
   recentAnnouncements: zod
     .array(
       zod.object({
-        id: zod.number(),
+        id: zod.string(),
         title: zod.string(),
         content: zod.string(),
         type: zod.enum(["general", "event", "deadline", "hackathon", "job"]),
-        createdById: zod.number().optional(),
+        createdById: zod.string().optional(),
         createdAt: zod.string(),
       }),
     )
@@ -1280,11 +1280,11 @@ export const GetDashboardSummaryResponse = zod.object({
  * @summary Get recent platform activity
  */
 export const GetRecentActivityResponseItem = zod.object({
-  id: zod.number(),
+  id: zod.string(),
   type: zod.string(),
   description: zod.string(),
   timestamp: zod.string(),
-  userId: zod.number().optional(),
+  userId: zod.string().optional(),
   userName: zod.string().optional(),
 });
 export const GetRecentActivityResponse = zod.array(

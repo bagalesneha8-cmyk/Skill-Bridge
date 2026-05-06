@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 export default function FreelanceDetail() {
   const [, params] = useRoute("/freelance/:id");
-  const id = parseInt(params?.id ?? "0", 10);
+  const id = params?.id ?? "0";
   const headers = getAuthHeaders();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -27,12 +27,10 @@ export default function FreelanceDetail() {
 
   const { data: project, isLoading } = useGetFreelanceProject(id, {
     request: { headers },
-    query: { queryKey: getGetFreelanceProjectQueryKey(id) },
   });
 
   const { data: bids, isLoading: loadingBids } = useListBids(id, {
     request: { headers },
-    query: { queryKey: getListBidsQueryKey(id) },
   });
 
   const bidMutation = usePlaceBid();
@@ -56,7 +54,7 @@ export default function FreelanceDetail() {
     });
   }
 
-  const proj = project as { id: number; title: string; description: string; budget: string; skills: string[]; deadline?: string; status: string; bidCount: number } | undefined;
+  const proj = project as { id: string; title: string; description: string; budget: string; skills: string[]; deadline?: string; status: string; bidCount: number } | undefined;
 
   if (isLoading) return (
     <div className="p-6 max-w-4xl mx-auto space-y-4">

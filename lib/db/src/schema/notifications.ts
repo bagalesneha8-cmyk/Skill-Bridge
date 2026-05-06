@@ -1,31 +1,22 @@
-import { pgTable, text, serial, timestamp, integer, boolean } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
-import { usersTable } from "./users";
+import mongoose from "mongoose";
 
-export const notificationsTable = pgTable("notifications", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
-  type: text("type").notNull(),
-  title: text("title").notNull(),
-  message: text("message").notNull(),
-  read: boolean("read").notNull().default(false),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+const notificationSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  type: { type: String, required: true },
+  title: { type: String, required: true },
+  message: { type: String, required: true },
+  read: { type: Boolean, required: true, default: false },
+}, { timestamps: { createdAt: true, updatedAt: false } });
 
-export const badgesTable = pgTable("badges", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-  description: text("description").notNull(),
-  icon: text("icon").notNull(),
-  earnedAt: timestamp("earned_at", { withTimezone: true }).notNull().defaultNow(),
-});
+const badgeSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  name: { type: String, required: true },
+  description: { type: String, required: true },
+  icon: { type: String, required: true },
+}, { timestamps: { createdAt: "earnedAt", updatedAt: false } });
 
-export const insertNotificationSchema = createInsertSchema(notificationsTable).omit({ id: true, createdAt: true });
-export type InsertNotification = z.infer<typeof insertNotificationSchema>;
-export type Notification = typeof notificationsTable.$inferSelect;
+export const Notification = mongoose.model("Notification", notificationSchema);
+export const Badge = mongoose.model("Badge", badgeSchema);
 
-export const insertBadgeSchema = createInsertSchema(badgesTable).omit({ id: true, earnedAt: true });
-export type InsertBadge = z.infer<typeof insertBadgeSchema>;
-export type Badge = typeof badgesTable.$inferSelect;
+export const notificationsTable = Notification;
+export const badgesTable = Badge;

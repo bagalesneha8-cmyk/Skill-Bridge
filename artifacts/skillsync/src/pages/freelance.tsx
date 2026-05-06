@@ -41,9 +41,8 @@ export default function FreelanceMarketplace() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data, isLoading } = useListFreelanceProjects({
+  const { data, isLoading } = useListFreelanceProjects(undefined, {
     request: { headers },
-    query: { queryKey: getListFreelanceProjectsQueryKey() },
   });
 
   const createMutation = useCreateFreelanceProject();
@@ -58,10 +57,11 @@ export default function FreelanceMarketplace() {
       data: {
         ...values,
         skills: values.skills.split(",").map(s => s.trim()).filter(Boolean),
+        status: "open",
       }
     }, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getListFreelanceProjectsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getListFreelanceProjectsQueryKey({}) });
         setOpen(false);
         form.reset();
         toast({ title: "Project posted!", description: "Freelancers can now bid on your project." });

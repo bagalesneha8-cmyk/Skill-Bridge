@@ -21,7 +21,6 @@ export default function Resume() {
 
   const { data: resume, isLoading } = useGetResume({
     request: { headers },
-    query: { queryKey: getGetResumeQueryKey() },
   });
 
   const uploadMutation = useUploadResume();

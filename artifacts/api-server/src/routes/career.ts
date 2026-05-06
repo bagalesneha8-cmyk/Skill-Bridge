@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, sql, count } from "drizzle-orm";
-import { db, usersTable, jobApplicationsTable, assessmentResultsTable, freelanceProjectsTable, badgesTable } from "@workspace/db";
+import { User, JobApplication, AssessmentResult, FreelanceProject, Badge, Job } from "@workspace/db";
 import { getUserIdFromToken } from "./auth";
 
 const router: IRouter = Router();
@@ -10,12 +9,12 @@ router.get("/career/stats", async (req, res): Promise<void> => {
   const userId = getUserIdFromToken(req.headers.authorization);
   if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
+  const user = await User.findById(userId);
   if (!user) { res.status(404).json({ error: "User not found" }); return; }
 
-  const applications = await db.select().from(jobApplicationsTable).where(eq(jobApplicationsTable.userId, userId));
-  const assessmentResults = await db.select().from(assessmentResultsTable).where(eq(assessmentResultsTable.userId, userId));
-  const freelanceProjects = await db.select().from(freelanceProjectsTable).where(eq(freelanceProjectsTable.clientId, userId));
+  const applications = await JobApplication.find({ userId });
+  const assessmentResults = await AssessmentResult.find({ userId });
+  const freelanceProjects = await FreelanceProject.find({ clientId: userId });
 
   const appsByStatus = applications.reduce((acc: Record<string, number>, app) => {
     acc[app.status] = (acc[app.status] || 0) + 1;
@@ -49,32 +48,28 @@ router.get("/career/timeline", async (req, res): Promise<void> => {
   const userId = getUserIdFromToken(req.headers.authorization);
   if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const applications = await db.select({ a: jobApplicationsTable, j: { title: sql<string>`${eq(jobApplicationsTable.jobId, jobApplicationsTable.jobId)}` } })
-    .from(jobApplicationsTable)
-    .where(eq(jobApplicationsTable.userId, userId))
-    .orderBy(sql`${jobApplicationsTable.appliedAt} desc`)
+  const applications = await JobApplication.find({ userId })
+    .sort({ appliedAt: -1 })
     .limit(10);
 
-  const results = await db.select()
-    .from(assessmentResultsTable)
-    .where(eq(assessmentResultsTable.userId, userId))
-    .orderBy(sql`${assessmentResultsTable.completedAt} desc`)
+  const results = await AssessmentResult.find({ userId })
+    .sort({ completedAt: -1 })
     .limit(5);
 
   const events = [
     ...applications.map((r, i) => ({
-      id: i + 1,
+      id: `app-${i}`,
       type: "application",
       title: "Applied for a job",
-      description: `Application status: ${r.a.status}`,
-      date: r.a.appliedAt.toISOString(),
+      description: `Application status: ${r.status}`,
+      date: (r as any).appliedAt.toISOString(),
     })),
     ...results.map((r, i) => ({
-      id: applications.length + i + 1,
+      id: `assess-${i}`,
       type: "assessment",
       title: r.passed ? "Passed Assessment" : "Completed Assessment",
       description: `Score: ${r.score}% ${r.passed ? "(Passed)" : "(Not Passed)"}`,
-      date: r.completedAt.toISOString(),
+      date: (r as any).completedAt.toISOString(),
     })),
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
@@ -86,47 +81,17 @@ router.get("/career/badges", async (req, res): Promise<void> => {
   const userId = getUserIdFromToken(req.headers.authorization);
   if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
+  const user = await User.findById(userId);
   if (!user) { res.status(404).json({ error: "User not found" }); return; }
 
-  const badges = await db.select().from(badgesTable).where(eq(badgesTable.userId, userId));
+  const badges = await Badge.find({ userId });
 
   // Rank among all users
-  const allUsers = await db.select({ id: usersTable.id, xp: usersTable.xp })
-    .from(usersTable)
-    .orderBy(sql`${usersTable.xp} desc`);
-  const rank = allUsers.findIndex(u => u.id === userId) + 1;
+  const allUsers = await User.find({}, { _id: 1, xp: 1 })
+    .sort({ xp: -1 });
+  const rank = allUsers.findIndex(u => u._id.toString() === userId) + 1;
 
   res.json({ xp: user.xp, level: user.level, badges, rank });
-});
-
-// GET /leaderboard
-router.get("/leaderboard", async (req, res): Promise<void> => {
-  const users = await db.select({
-    id: usersTable.id,
-    name: usersTable.name,
-    avatar: usersTable.avatar,
-    xp: usersTable.xp,
-    level: usersTable.level,
-  })
-    .from(usersTable)
-    .orderBy(sql`${usersTable.xp} desc`)
-    .limit(20);
-
-  const leaderboard = await Promise.all(users.map(async (user, i) => {
-    const badges = await db.select().from(badgesTable).where(eq(badgesTable.userId, user.id));
-    return {
-      rank: i + 1,
-      userId: user.id,
-      name: user.name,
-      avatar: user.avatar,
-      xp: user.xp,
-      level: user.level,
-      badges: badges.length,
-    };
-  }));
-
-  res.json(leaderboard);
 });
 
 export default router;

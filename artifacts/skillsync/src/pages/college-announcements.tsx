@@ -37,7 +37,6 @@ export default function CollegeAnnouncements() {
 
   const { data: announcements, isLoading } = useListAnnouncements({
     request: { headers },
-    query: { queryKey: getListAnnouncementsQueryKey() },
   });
 
   const createMutation = useCreateAnnouncement();
@@ -47,7 +46,7 @@ export default function CollegeAnnouncements() {
       toast({ title: "Title and content required", variant: "destructive" });
       return;
     }
-    createMutation.mutate({ data: { title, content, type } }, {
+    createMutation.mutate({ data: { title, content, type: type as any } }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getListAnnouncementsQueryKey() });
         setOpen(false);

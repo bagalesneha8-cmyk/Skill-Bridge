@@ -37,19 +37,16 @@ export default function Jobs() {
   const [type, setType] = useState("");
   const headers = getAuthHeaders();
 
-  const { data: jobsData, isLoading } = useListJobs({
-    params: { type: type || undefined, search: search || undefined },
+  const { data: jobsData, isLoading } = useListJobs({ type: type || undefined, search: search || undefined }, {
     request: { headers },
-    query: { queryKey: getListJobsQueryKey({ type: type || undefined, search: search || undefined }) },
   });
 
   const { data: matches } = useGetJobMatches({
     request: { headers },
-    query: { queryKey: getGetJobMatchesQueryKey() },
   });
 
   const matchMap = Array.isArray(matches)
-    ? Object.fromEntries(matches.map((m: { job: { id: number }; matchScore: number }) => [m.job.id, m.matchScore]))
+    ? Object.fromEntries(matches.map((m: { job: { id: string }; matchScore: number }) => [m.job.id, m.matchScore]))
     : {};
 
   const jobs = (jobsData as { jobs?: unknown[] })?.jobs ?? [];
@@ -94,7 +91,7 @@ export default function Jobs() {
       <div className="grid md:grid-cols-2 gap-4">
         {isLoading ? (
           Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-44" />)
-        ) : (jobs as Array<{ id: number; title: string; company: string; type: string; location?: string; salary?: string; deadline?: string; skills: string[]; applicantCount: number }>).map((job, i) => (
+        ) : (jobs as Array<{ id: string; title: string; company: string; type: string; location?: string; salary?: string; deadline?: string; skills: string[]; applicantCount: number }>).map((job, i) => (
           <motion.div
             key={job.id}
             initial={{ opacity: 0, y: 10 }}

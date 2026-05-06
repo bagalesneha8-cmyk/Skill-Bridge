@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, ilike, sql } from "drizzle-orm";
-import { db, usersTable, userSkillsTable } from "@workspace/db";
+import { User, UserSkill } from "@workspace/db";
 import { getUserIdFromToken } from "./auth";
 
 const router: IRouter = Router();
@@ -8,62 +7,68 @@ const router: IRouter = Router();
 // GET /users
 router.get("/users", async (req, res): Promise<void> => {
   const { role, page = "1", limit = "20" } = req.query as Record<string, string>;
-  const offset = (parseInt(page) - 1) * parseInt(limit);
+  const limitNum = parseInt(limit);
+  const skip = (parseInt(page) - 1) * limitNum;
 
-  let query = db.select().from(usersTable).$dynamic();
-  if (role) {
-    query = query.where(eq(usersTable.role, role));
-  }
+  const filter: any = {};
+  if (role) filter.role = role;
 
-  const users = await query.limit(parseInt(limit)).offset(offset);
-  const [{ count }] = await db.select({ count: sql<number>`count(*)` }).from(usersTable);
+  const users = await User.find(filter)
+    .skip(skip)
+    .limit(limitNum);
+
+  const total = await User.countDocuments(filter);
 
   res.json({
-    users: users.map(sanitizeUser),
-    total: Number(count),
+    users: users.map(u => sanitizeUser(u.toObject())),
+    total,
     page: parseInt(page),
-    limit: parseInt(limit),
+    limit: limitNum,
   });
 });
 
 // GET /users/:id
 router.get("/users/:id", async (req, res): Promise<void> => {
-  const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, id));
+  const id = req.params.id;
+  const user = await User.findById(id);
   if (!user) {
     res.status(404).json({ error: "User not found" });
     return;
   }
-  res.json(sanitizeUser(user));
+  res.json(sanitizeUser(user.toObject()));
 });
 
 // PATCH /users/:id
 router.patch("/users/:id", async (req, res): Promise<void> => {
-  const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
+  const id = req.params.id;
   const { name, bio, institution, location, avatar } = req.body;
 
-  const [user] = await db.update(usersTable)
-    .set({ name, bio, institution, location, avatar })
-    .where(eq(usersTable.id, id))
-    .returning();
+  const user = await User.findByIdAndUpdate(
+    id,
+    { name, bio, institution, location, avatar },
+    { new: true }
+  );
 
   if (!user) {
     res.status(404).json({ error: "User not found" });
     return;
   }
-  res.json(sanitizeUser(user));
+  res.json(sanitizeUser(user.toObject()));
 });
 
 // GET /users/:id/skills
 router.get("/users/:id/skills", async (req, res): Promise<void> => {
-  const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
-  const skills = await db.select().from(userSkillsTable).where(eq(userSkillsTable.userId, id));
-  res.json(skills);
+  const id = req.params.id;
+  const skills = await UserSkill.find({ userId: id });
+  res.json(skills.map(s => {
+    const obj = s.toObject();
+    return { ...obj, id: obj._id.toString() };
+  }));
 });
 
 // POST /users/:id/skills
 router.post("/users/:id/skills", async (req, res): Promise<void> => {
-  const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
+  const id = req.params.id;
   const { skill, level } = req.body;
 
   if (!skill || !level) {
@@ -71,19 +76,20 @@ router.post("/users/:id/skills", async (req, res): Promise<void> => {
     return;
   }
 
-  const [newSkill] = await db.insert(userSkillsTable).values({
+  const newSkill = await UserSkill.create({
     userId: id,
     skill,
     level,
     verified: false,
-  }).returning();
+  });
 
-  res.status(201).json(newSkill);
+  const obj = newSkill.toObject();
+  res.status(201).json({ ...obj, id: obj._id.toString() });
 });
 
-function sanitizeUser(user: typeof usersTable.$inferSelect) {
-  const { password: _password, ...rest } = user;
-  return rest;
+function sanitizeUser(user: any) {
+  const { password: _password, __v: _v, ...rest } = user;
+  return { ...rest, id: user._id.toString() };
 }
 
 export default router;

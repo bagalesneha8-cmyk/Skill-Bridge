@@ -20,20 +20,17 @@ export default function Assessments() {
   const [category, setCategory] = useState("");
   const headers = getAuthHeaders();
 
-  const { data: assessments, isLoading } = useListAssessments({
-    params: { category: category || undefined },
+  const { data: assessments, isLoading } = useListAssessments({ category: category || undefined }, {
     request: { headers },
-    query: { queryKey: getListAssessmentsQueryKey({ category: category || undefined }) },
   });
 
-  const { data: results } = useListAssessmentResults({
+  const { data: results } = useListAssessmentResults(undefined, {
     request: { headers },
-    query: { queryKey: getListAssessmentResultsQueryKey() },
   });
 
   const passedIds = new Set(
     Array.isArray(results)
-      ? results.filter((r: { passed: boolean }) => r.passed).map((r: { assessmentId: number }) => r.assessmentId)
+      ? results.filter((r: { passed: boolean }) => r.passed).map((r: { assessmentId: string }) => r.assessmentId)
       : []
   );
 
@@ -77,7 +74,7 @@ export default function Assessments() {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         {isLoading ? (
           Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-44" />)
-        ) : (Array.isArray(assessments) ? assessments : []).map((a: { id: number; title: string; category: string; type: string; difficulty: string; duration: number; questionCount: number }, i: number) => {
+        ) : (Array.isArray(assessments) ? assessments : []).map((a: { id: string; title: string; category: string; type: string; difficulty: string; duration: number; questionCount: number }, i: number) => {
           const passed = passedIds.has(a.id);
           return (
             <motion.div

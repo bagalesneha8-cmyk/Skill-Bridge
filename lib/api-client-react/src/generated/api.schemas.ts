@@ -48,7 +48,7 @@ export const UserRole = {
 } as const;
 
 export interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
   role: UserRole;
@@ -93,8 +93,8 @@ export const UserSkillLevel = {
 } as const;
 
 export interface UserSkill {
-  id: number;
-  userId: number;
+  id: string;
+  userId: string;
   skill: string;
   level: UserSkillLevel;
   verified?: boolean;
@@ -132,7 +132,7 @@ export const JobStatus = {
 } as const;
 
 export interface Job {
-  id: number;
+  id: string;
   title: string;
   company: string;
   type: JobType;
@@ -141,7 +141,7 @@ export interface Job {
   location?: string;
   salary?: string;
   deadline?: string;
-  postedById?: number;
+  postedById?: string;
   applicantCount?: number;
   createdAt?: string;
   status: JobStatus;
@@ -199,9 +199,9 @@ export const JobApplicationStatus = {
 } as const;
 
 export interface JobApplication {
-  id: number;
-  jobId: number;
-  userId: number;
+  id: string;
+  jobId: string;
+  userId: string;
   status: JobApplicationStatus;
   coverLetter?: string;
   appliedAt: string;
@@ -244,7 +244,7 @@ export const AssessmentDifficulty = {
 } as const;
 
 export interface Assessment {
-  id: number;
+  id: string;
   title: string;
   category: string;
   type: AssessmentType;
@@ -263,14 +263,14 @@ export const QuestionType = {
 } as const;
 
 export interface Question {
-  id: number;
+  id: string;
   text: string;
   options?: string[];
   type: QuestionType;
 }
 
 export interface AssessmentDetail {
-  id: number;
+  id: string;
   title: string;
   category: string;
   type: string;
@@ -315,7 +315,7 @@ export interface CreateAssessmentBody {
 }
 
 export type SubmitAssessmentBodyAnswersItem = {
-  questionId: number;
+  questionId: string;
   answer: string;
 };
 
@@ -324,9 +324,9 @@ export interface SubmitAssessmentBody {
 }
 
 export interface AssessmentResult {
-  id: number;
-  assessmentId: number;
-  userId: number;
+  id: string;
+  assessmentId: string;
+  userId: string;
   score: number;
   passed: boolean;
   certificate?: string;
@@ -355,7 +355,7 @@ export const LearningRecommendationPriority = {
 } as const;
 
 export interface LearningRecommendation {
-  id: number;
+  id: string;
   skill: string;
   title: string;
   type: LearningRecommendationType;
@@ -384,11 +384,11 @@ export interface LearningProgress {
   totalItems: number;
   weeklyGoal: number;
   weeklyCompleted: number;
-  completedIds: number[];
+  completedIds: string[];
 }
 
 export interface UpdateLearningProgressBody {
-  recommendationId: number;
+  recommendationId: string;
 }
 
 export type ResumeExperienceItem = {
@@ -404,8 +404,8 @@ export type ResumeEducationItem = {
 };
 
 export interface Resume {
-  id: number;
-  userId: number;
+  id: string;
+  userId: string;
   filename?: string;
   summary?: string;
   experience?: ResumeExperienceItem[];
@@ -468,7 +468,7 @@ export interface CareerStats {
 }
 
 export interface CareerEvent {
-  id: number;
+  id: string;
   type: string;
   title: string;
   description?: string;
@@ -476,7 +476,7 @@ export interface CareerEvent {
 }
 
 export interface Badge {
-  id: number;
+  id: string;
   name: string;
   description: string;
   icon: string;
@@ -492,7 +492,7 @@ export interface GamificationProfile {
 
 export interface LeaderboardEntry {
   rank: number;
-  userId: number;
+  userId: string;
   name: string;
   avatar?: string;
   xp: number;
@@ -511,14 +511,14 @@ export const FreelanceProjectStatus = {
 } as const;
 
 export interface FreelanceProject {
-  id: number;
+  id: string;
   title: string;
   description: string;
   budget: string;
   skills: string[];
   deadline?: string;
   status: FreelanceProjectStatus;
-  clientId: number;
+  clientId: string;
   bidCount?: number;
   createdAt?: string;
 }
@@ -546,9 +546,9 @@ export const BidStatus = {
 } as const;
 
 export interface Bid {
-  id: number;
-  projectId: number;
-  freelancerId: number;
+  id: string;
+  projectId: string;
+  freelancerId: string;
   amount: string;
   proposal: string;
   deliveryTime?: string;
@@ -591,13 +591,13 @@ export const CollegeFormStatus = {
 } as const;
 
 export interface CollegeForm {
-  id: number;
+  id: string;
   title: string;
   type: CollegeFormType;
   description: string;
   deadline?: string;
   fields?: CollegeFormFieldsItem[];
-  createdById?: number;
+  createdById?: string;
   status: CollegeFormStatus;
   submissionCount?: number;
   createdAt?: string;
@@ -642,9 +642,9 @@ export const FormSubmissionStatus = {
 } as const;
 
 export interface FormSubmission {
-  id: number;
-  formId: number;
-  userId: number;
+  id: string;
+  formId: string;
+  userId: string;
   data: FormSubmissionData;
   status: FormSubmissionStatus;
   feedback?: string;
@@ -656,7 +656,7 @@ export interface FormSubmission {
 export type CreateSubmissionBodyData = { [key: string]: unknown };
 
 export interface CreateSubmissionBody {
-  formId: number;
+  formId: string;
   data: CreateSubmissionBodyData;
 }
 
@@ -686,11 +686,11 @@ export const AnnouncementType = {
 } as const;
 
 export interface Announcement {
-  id: number;
+  id: string;
   title: string;
   content: string;
   type: AnnouncementType;
-  createdById?: number;
+  createdById?: string;
   createdAt: string;
 }
 
@@ -712,8 +712,8 @@ export interface CreateAnnouncementBody {
 }
 
 export interface Notification {
-  id: number;
-  userId: number;
+  id: string;
+  userId: string;
   type: string;
   title: string;
   message: string;
@@ -740,11 +740,11 @@ export interface DashboardSummary {
 }
 
 export interface ActivityItem {
-  id: number;
+  id: string;
   type: string;
   description: string;
   timestamp: string;
-  userId?: number;
+  userId?: string;
   userName?: string;
 }
 

@@ -32,22 +32,19 @@ export default function Learning() {
 
   const { data: recommendations, isLoading: loadingRecs } = useGetLearningRecommendations({
     request: { headers },
-    query: { queryKey: getGetLearningRecommendationsQueryKey() },
   });
 
   const { data: progress, isLoading: loadingProgress } = useGetLearningProgress({
     request: { headers },
-    query: { queryKey: getGetLearningProgressQueryKey() },
   });
 
   const { data: roadmap } = useGetLearningRoadmap({
     request: { headers },
-    query: { queryKey: getGetLearningRoadmapQueryKey() },
   });
 
   const updateProgress = useUpdateLearningProgress();
 
-  function markComplete(id: number) {
+  function markComplete(id: string) {
     updateProgress.mutate({ data: { recommendationId: id } }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: getGetLearningProgressQueryKey() });
@@ -58,7 +55,7 @@ export default function Learning() {
   }
 
   const recs = Array.isArray(recommendations) ? recommendations : [];
-  const completedIds = new Set(Array.isArray((progress as { completedIds?: number[] })?.completedIds) ? (progress as { completedIds: number[] }).completedIds : []);
+  const completedIds = new Set(Array.isArray((progress as { completedIds?: string[] })?.completedIds) ? (progress as { completedIds: string[] }).completedIds : []);
   const prog = progress as { streak?: number; completedItems?: number; totalItems?: number; weeklyCompleted?: number; weeklyGoal?: number } | undefined;
 
   return (

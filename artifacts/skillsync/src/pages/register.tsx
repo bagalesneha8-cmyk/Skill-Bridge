@@ -42,8 +42,8 @@ export default function Register() {
   const registerMutation = useRegister();
 
   function onSubmit(data: FormData) {
-    registerMutation.mutate({ data }, {
-      onSuccess: (result: { user: Parameters<typeof login>[1]; token: string }) => {
+    registerMutation.mutate({ data: { ...data, role: data.role as any } }, {
+      onSuccess: (result: any) => {
         login(result.token, result.user);
         setLocation("/dashboard");
       },

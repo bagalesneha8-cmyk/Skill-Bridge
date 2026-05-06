@@ -1,20 +1,14 @@
-import { pgTable, text, serial, timestamp, integer, real, jsonb } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
-import { usersTable } from "./users";
+import mongoose from "mongoose";
 
-export const resumesTable = pgTable("resumes", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }).unique(),
-  filename: text("filename").notNull(),
-  summary: text("summary"),
-  experience: jsonb("experience").notNull().default([]),
-  education: jsonb("education").notNull().default([]),
-  extractedSkills: text("extracted_skills").array().notNull().default([]),
-  atsScore: real("ats_score"),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-});
+const resumeSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, unique: true },
+  filename: { type: String, required: true },
+  summary: { type: String },
+  experience: { type: [mongoose.Schema.Types.Mixed], required: true, default: [] },
+  education: { type: [mongoose.Schema.Types.Mixed], required: true, default: [] },
+  extractedSkills: { type: [String], required: true, default: [] },
+  atsScore: { type: Number },
+}, { timestamps: { createdAt: false, updatedAt: true } });
 
-export const insertResumeSchema = createInsertSchema(resumesTable).omit({ id: true, updatedAt: true });
-export type InsertResume = z.infer<typeof insertResumeSchema>;
-export type Resume = typeof resumesTable.$inferSelect;
+export const Resume = mongoose.model("Resume", resumeSchema);
+export const resumesTable = Resume;

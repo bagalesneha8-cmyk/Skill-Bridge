@@ -19,7 +19,6 @@ export default function Leaderboard() {
 
   const { data: leaderboard, isLoading } = useGetLeaderboard({
     request: { headers },
-    query: { queryKey: getGetLeaderboardQueryKey() },
   });
 
   return (
@@ -34,7 +33,7 @@ export default function Leaderboard() {
       {/* Top 3 podium */}
       {!isLoading && Array.isArray(leaderboard) && leaderboard.length >= 3 && (
         <div className="flex items-end justify-center gap-3 mb-8">
-          {[leaderboard[1], leaderboard[0], leaderboard[2]].map((entry: { userId: number; name: string; xp: number; level: number; badges: number; rank: number }, i: number) => {
+          {[leaderboard[1], leaderboard[0], leaderboard[2]].map((entry: { userId: string; name: string; xp: number; level: number; badges: number; rank: number }, i: number) => {
             const heights = ["h-24", "h-32", "h-20"];
             const colors = ["bg-gray-200", "bg-yellow-400", "bg-amber-500"];
             return (
@@ -56,7 +55,7 @@ export default function Leaderboard() {
       {/* Full list */}
       <div className="space-y-2">
         {isLoading ? Array.from({ length: 10 }).map((_, i) => <Skeleton key={i} className="h-16" />) :
-          (Array.isArray(leaderboard) ? leaderboard : []).map((entry: { userId: number; name: string; xp: number; level: number; badges: number; rank: number }, i: number) => {
+          (Array.isArray(leaderboard) ? leaderboard : []).map((entry: { userId: string; name: string; xp: number; level: number; badges: number; rank: number }, i: number) => {
             const isMe = user?.id === entry.userId;
             return (
               <motion.div

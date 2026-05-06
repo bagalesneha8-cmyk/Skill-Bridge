@@ -33,14 +33,12 @@ export default function CollegeSubmissions() {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const { data: submissions, isLoading } = useListSubmissions({
+  const { data: submissions, isLoading } = useListSubmissions(undefined, {
     request: { headers },
-    query: { queryKey: getListSubmissionsQueryKey() },
   });
 
-  const { data: forms } = useListCollegeForms({
+  const { data: forms } = useListCollegeForms(undefined, {
     request: { headers },
-    query: { queryKey: getListCollegeFormsQueryKey() },
   });
 
   const createMutation = useCreateSubmission();
@@ -51,9 +49,9 @@ export default function CollegeSubmissions() {
       toast({ title: "Select a form", variant: "destructive" });
       return;
     }
-    createMutation.mutate({ data: { formId: parseInt(selectedFormId, 10), data: {} } }, {
+    createMutation.mutate({ data: { formId: selectedFormId, data: {} } }, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getListSubmissionsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getListSubmissionsQueryKey({}) });
         setOpen(false);
         setSelectedFormId("");
         toast({ title: "Submitted!", description: "Your application is under review." });
@@ -61,10 +59,10 @@ export default function CollegeSubmissions() {
     });
   }
 
-  function handleUpdateStatus(id: number, status: string) {
+  function handleUpdateStatus(id: string, status: string) {
     updateMutation.mutate({ id, data: { status } }, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getListSubmissionsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getListSubmissionsQueryKey({}) });
         toast({ title: `Submission ${status}` });
       },
     });
@@ -96,7 +94,7 @@ export default function CollegeSubmissions() {
                   <Select value={selectedFormId} onValueChange={setSelectedFormId}>
                     <SelectTrigger data-testid="select-form-id"><SelectValue placeholder="Choose a form..." /></SelectTrigger>
                     <SelectContent>
-                      {(Array.isArray(forms) ? forms : []).map((f: { id: number; title: string; type: string }) => (
+                      {(Array.isArray(forms) ? forms : []).map((f: { id: string; title: string; type: string }) => (
                         <SelectItem key={f.id} value={String(f.id)}>
                           {f.title} ({f.type})
                         </SelectItem>

@@ -1,32 +1,27 @@
-import { pgTable, text, serial, timestamp, integer, boolean } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod/v4";
-import { usersTable } from "./users";
+import mongoose from "mongoose";
 
-export const learningRecommendationsTable = pgTable("learning_recommendations", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => usersTable.id, { onDelete: "cascade" }),
-  skill: text("skill").notNull(),
-  title: text("title").notNull(),
-  type: text("type").notNull(), // course, youtube, documentation, platform, roadmap
-  url: text("url").notNull(),
-  provider: text("provider").notNull(),
-  duration: text("duration"),
-  priority: text("priority").notNull().default("medium"), // high, medium, low
-  completed: boolean("completed").notNull().default(false),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+const learningRecommendationSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  skill: { type: String, required: true },
+  title: { type: String, required: true },
+  type: { type: String, required: true },
+  url: { type: String, required: true },
+  provider: { type: String, required: true },
+  duration: { type: String },
+  priority: { type: String, required: true, default: "medium" },
+  completed: { type: Boolean, required: true, default: false },
+}, { timestamps: { createdAt: true, updatedAt: false } });
 
-export const learningProgressTable = pgTable("learning_progress", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => usersTable.id, { onDelete: "cascade" }).unique(),
-  streak: integer("streak").notNull().default(0),
-  completedItems: integer("completed_items").notNull().default(0),
-  weeklyGoal: integer("weekly_goal").notNull().default(5),
-  weeklyCompleted: integer("weekly_completed").notNull().default(0),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
-});
+const learningProgressSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, unique: true },
+  streak: { type: Number, required: true, default: 0 },
+  completedItems: { type: Number, required: true, default: 0 },
+  weeklyGoal: { type: Number, required: true, default: 5 },
+  weeklyCompleted: { type: Number, required: true, default: 0 },
+}, { timestamps: { createdAt: false, updatedAt: true } });
 
-export const insertLearningRecommendationSchema = createInsertSchema(learningRecommendationsTable).omit({ id: true, createdAt: true });
-export type InsertLearningRecommendation = z.infer<typeof insertLearningRecommendationSchema>;
-export type LearningRecommendation = typeof learningRecommendationsTable.$inferSelect;
+export const LearningRecommendation = mongoose.model("LearningRecommendation", learningRecommendationSchema);
+export const LearningProgress = mongoose.model("LearningProgress", learningProgressSchema);
+
+export const learningRecommendationsTable = LearningRecommendation;
+export const learningProgressTable = LearningProgress;

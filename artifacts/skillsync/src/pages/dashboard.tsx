@@ -93,10 +93,10 @@ export default function Dashboard() {
               </span>
             </Link>
           </div>
-          <div className="space-y-2">
-            {loadingMatches ? (
-              Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20" />)
-            ) : Array.isArray(matches) && matches.slice(0, 4).map((m: { job: { id: number; title: string; company: string; type: string }; matchScore: number; matchedSkills: string[] }, i: number) => (
+          <div className="space-y-3">
+            {loadingSummary ? (
+              Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-24" />)
+            ) : summary?.topMatches?.map((m: { job: { id: string; title: string; company: string; type: string }; matchScore: number; matchedSkills: string[] }, i: number) => (
               <motion.div
                 key={m.job.id}
                 initial={{ opacity: 0, x: -10 }}
@@ -131,7 +131,7 @@ export default function Dashboard() {
           <div className="space-y-2">
             {loadingSummary ? (
               Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-16" />)
-            ) : summary?.recentJobs?.slice(0, 3).map((job: { id: number; title: string; company: string; type: string; applicantCount: number }) => (
+            ) : summary?.recentJobs?.slice(0, 3).map((job: { id: string; title: string; company: string; type: string; applicantCount: number }) => (
               <Link key={job.id} href={`/jobs/${job.id}`}>
                 <div className="p-3 border border-border rounded-lg bg-card hover:border-primary/30 transition-colors cursor-pointer flex items-center gap-3" data-testid={`card-recent-job-${job.id}`}>
                   <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center flex-shrink-0">
@@ -159,7 +159,7 @@ export default function Dashboard() {
             <div className="space-y-2">
               {loadingSummary ? (
                 Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-20" />)
-              ) : summary?.recentAnnouncements?.map((ann: { id: number; title: string; content: string; type: string }) => (
+              ) : summary?.recentAnnouncements?.map((ann: { id: string; title: string; content: string; type: string }) => (
                 <div key={ann.id} className="p-3 border border-border rounded-lg bg-card" data-testid={`card-announcement-${ann.id}`}>
                   <div className="flex items-start gap-2">
                     <Badge variant="outline" className="text-xs capitalize flex-shrink-0 mt-0.5">{ann.type}</Badge>

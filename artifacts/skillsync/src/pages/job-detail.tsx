@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 export default function JobDetail() {
   const [, params] = useRoute("/jobs/:id");
-  const id = parseInt(params?.id ?? "0", 10);
+  const id = params?.id ?? "0";
   const [coverLetter, setCoverLetter] = useState("");
   const [applied, setApplied] = useState(false);
   const { toast } = useToast();
@@ -23,23 +23,21 @@ export default function JobDetail() {
 
   const { data: job, isLoading } = useGetJob(id, {
     request: { headers },
-    query: { queryKey: getGetJobQueryKey(id) },
   });
 
   const { data: matches } = useGetJobMatches({
     request: { headers },
-    query: { queryKey: getGetJobMatchesQueryKey() },
   });
 
   const applyMutation = useApplyJob();
 
-  const match = Array.isArray(matches) ? matches.find((m: { job: { id: number } }) => m.job.id === id) : null;
+  const match = Array.isArray(matches) ? matches.find((m: { job: { id: string } }) => m.job.id === id) : null;
 
   function handleApply() {
     applyMutation.mutate({ id, data: { coverLetter } }, {
       onSuccess: () => {
         setApplied(true);
-        queryClient.invalidateQueries({ queryKey: getListApplicationsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getListApplicationsQueryKey({}) });
         toast({ title: "Applied successfully!", description: "Your application has been submitted." });
       },
       onError: (err: unknown) => {
@@ -57,7 +55,7 @@ export default function JobDetail() {
     </div>
   );
 
-  const jobData = job as { id: number; title: string; company: string; type: string; description: string; skills: string[]; location?: string; salary?: string; deadline?: string; applicantCount: number } | undefined;
+  const jobData = job as { id: string; title: string; company: string; type: string; description: string; skills: string[]; location?: string; salary?: string; deadline?: string; applicantCount: number } | undefined;
   if (!jobData) return <div className="p-6 text-muted-foreground">Job not found.</div>;
 
   const matchScore = match?.matchScore;

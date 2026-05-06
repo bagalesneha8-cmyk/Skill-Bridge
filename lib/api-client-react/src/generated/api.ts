@@ -573,12 +573,12 @@ export function useListUsers<
 /**
  * @summary Get user by ID
  */
-export const getGetUserUrl = (id: number) => {
+export const getGetUserUrl = (id: string) => {
   return `/api/users/${id}`;
 };
 
 export const getUser = async (
-  id: number,
+  id: string,
   options?: RequestInit,
 ): Promise<User> => {
   return customFetch<User>(getGetUserUrl(id), {
@@ -587,7 +587,7 @@ export const getUser = async (
   });
 };
 
-export const getGetUserQueryKey = (id: number) => {
+export const getGetUserQueryKey = (id: string) => {
   return [`/api/users/${id}`] as const;
 };
 
@@ -595,7 +595,7 @@ export const getGetUserQueryOptions = <
   TData = Awaited<ReturnType<typeof getUser>>,
   TError = ErrorType<unknown>,
 >(
-  id: number,
+  id: string,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>;
     request?: SecondParameter<typeof customFetch>;
@@ -632,7 +632,7 @@ export function useGetUser<
   TData = Awaited<ReturnType<typeof getUser>>,
   TError = ErrorType<unknown>,
 >(
-  id: number,
+  id: string,
   options?: {
     query?: UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>;
     request?: SecondParameter<typeof customFetch>;

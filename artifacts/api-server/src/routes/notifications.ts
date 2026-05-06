@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, sql } from "drizzle-orm";
-import { db, notificationsTable } from "@workspace/db";
+import { Notification } from "@workspace/db";
 import { getUserIdFromToken } from "./auth";
 
 const router: IRouter = Router();
@@ -10,25 +9,29 @@ router.get("/notifications", async (req, res): Promise<void> => {
   const userId = getUserIdFromToken(req.headers.authorization);
   if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  const notifications = await db.select().from(notificationsTable)
-    .where(eq(notificationsTable.userId, userId))
-    .orderBy(sql`${notificationsTable.createdAt} desc`)
+  const notifications = await Notification.find({ userId })
+    .sort({ createdAt: -1 })
     .limit(50);
 
-  res.json(notifications);
+  res.json(notifications.map(n => {
+    const obj = n.toObject();
+    return { ...obj, id: obj._id.toString() };
+  }));
 });
 
 // PATCH /notifications/:id/read
 router.patch("/notifications/:id/read", async (req, res): Promise<void> => {
-  const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
+  const id = req.params.id;
 
-  const [notification] = await db.update(notificationsTable)
-    .set({ read: true })
-    .where(eq(notificationsTable.id, id))
-    .returning();
+  const notification = await Notification.findByIdAndUpdate(
+    id,
+    { read: true },
+    { new: true }
+  );
 
   if (!notification) { res.status(404).json({ error: "Notification not found" }); return; }
-  res.json(notification);
+  const obj = notification.toObject();
+  res.json({ ...obj, id: obj._id.toString() });
 });
 
 // PATCH /notifications/read-all
@@ -36,9 +39,10 @@ router.patch("/notifications/read-all", async (req, res): Promise<void> => {
   const userId = getUserIdFromToken(req.headers.authorization);
   if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
-  await db.update(notificationsTable)
-    .set({ read: true })
-    .where(eq(notificationsTable.userId, userId));
+  await Notification.updateMany(
+    { userId },
+    { read: true }
+  );
 
   res.json({ message: "All notifications marked as read" });
 });

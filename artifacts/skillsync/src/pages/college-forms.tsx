@@ -38,9 +38,8 @@ export default function CollegeForms() {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const { data: forms, isLoading } = useListCollegeForms({
+  const { data: forms, isLoading } = useListCollegeForms(undefined, {
     request: { headers },
-    query: { queryKey: getListCollegeFormsQueryKey() },
   });
 
   const createMutation = useCreateCollegeForm();
@@ -50,9 +49,9 @@ export default function CollegeForms() {
       toast({ title: "Title and description required", variant: "destructive" });
       return;
     }
-    createMutation.mutate({ data: { title: newTitle, type: newType, description: newDesc, deadline: newDeadline || undefined, fields: [] } }, {
+    createMutation.mutate({ data: { title: newTitle, type: newType as any, description: newDesc, deadline: newDeadline || undefined, fields: [] } }, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getListCollegeFormsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getListCollegeFormsQueryKey({}) });
         setOpen(false);
         setNewTitle(""); setNewDesc(""); setNewDeadline("");
         toast({ title: "Form created!" });

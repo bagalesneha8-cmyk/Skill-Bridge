@@ -22,28 +22,26 @@ export default function Profile() {
 
   const { data: me, isLoading } = useGetMe({
     request: { headers },
-    query: { queryKey: getGetMeQueryKey() },
   });
 
-  const { data: skills } = useGetUserSkills(authUser?.id ?? 0, {
+  const { data: skills } = useGetUserSkills(authUser?.id ?? "0", {
     request: { headers },
-    query: { enabled: !!authUser?.id, queryKey: getGetUserSkillsQueryKey(authUser?.id ?? 0) },
+    query: { enabled: !!authUser?.id },
   });
 
   const { data: gamification } = useGetUserBadges({
     request: { headers },
-    query: { queryKey: getGetUserBadgesQueryKey() },
   });
 
   const updateMutation = useUpdateUser();
 
-  const user = me as { id: number; name: string; email: string; role: string; bio?: string; institution?: string; location?: string; xp: number; level: number; streak: number } | undefined;
+  const user = me as { id: string; name: string; email: string; role: string; bio?: string; institution?: string; location?: string; xp: number; level: number; streak: number } | undefined;
   const [editName, setEditName] = useState(user?.name ?? "");
   const [editBio, setEditBio] = useState(user?.bio ?? "");
   const [editLocation, setEditLocation] = useState(user?.location ?? "");
   const [editInstitution, setEditInstitution] = useState(user?.institution ?? "");
 
-  const g = gamification as { xp?: number; level?: number; badges?: Array<{ id: number; name: string; description: string; icon: string }> } | undefined;
+  const g = gamification as { xp?: number; level?: number; badges?: Array<{ id: string; name: string; description: string; icon: string }> } | undefined;
 
   function startEdit() {
     setEditName(user?.name ?? "");
