@@ -105,7 +105,9 @@ export default function Dashboard() {
           ) : (
             <>
               <StatCard label="Open Jobs" value={summary?.stats?.jobs ?? 0} icon={Briefcase} color="bg-blue-500" />
-              <StatCard label="Applications" value={summary?.stats?.applications ?? 0} icon={TrendingUp} color="bg-purple-500" />
+              <Link href="/applications" className="block">
+                <StatCard label="Applications" value={summary?.stats?.applications ?? 0} icon={TrendingUp} color="bg-purple-500" />
+              </Link>
               <StatCard label="Assessments" value={summary?.stats?.assessmentsPassed ?? 0} icon={ClipboardList} color="bg-green-500" />
               <StatCard label="Notifications" value={summary?.stats?.unreadNotifications ?? 0} icon={Bell} color="bg-orange-500" />
             </>

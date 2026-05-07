@@ -41,11 +41,11 @@ router.get("/users/:id", async (req, res): Promise<void> => {
 // PATCH /users/:id
 router.patch("/users/:id", async (req, res): Promise<void> => {
   const id = req.params.id;
-  const { name, bio, institution, location, avatar, phone, socialLinks, privacy } = req.body;
+  const { name, bio, institution, location, avatar, phone, socialLinks, privacy, videoResumeUrl, videoResumeThumbnail, communicationScore } = req.body;
 
   const user = await User.findByIdAndUpdate(
     id,
-    { name, bio, institution, location, avatar, phone, socialLinks, privacy },
+    { name, bio, institution, location, avatar, phone, socialLinks, privacy, videoResumeUrl, videoResumeThumbnail, communicationScore },
     { new: true }
   );
 

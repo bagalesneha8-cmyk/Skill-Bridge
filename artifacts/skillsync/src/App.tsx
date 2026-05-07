@@ -24,6 +24,8 @@ import Leaderboard from "@/pages/leaderboard";
 import Admin from "@/pages/admin";
 import Profile from "@/pages/profile";
 import Portfolio from "@/pages/portfolio";
+import Applications from "@/pages/applications";
+import InterviewInvitation from "@/pages/interview-invitation";
 import Layout from "@/components/layout";
 
 const queryClient = new QueryClient({
@@ -58,6 +60,8 @@ function Router() {
       <Route path="/dashboard"><ProtectedRoute component={Dashboard} /></Route>
       <Route path="/jobs"><ProtectedRoute component={Jobs} /></Route>
       <Route path="/jobs/:id"><ProtectedRoute component={JobDetail} /></Route>
+      <Route path="/applications"><ProtectedRoute component={Applications} /></Route>
+      <Route path="/interview-invitation"><ProtectedRoute component={InterviewInvitation} /></Route>
       <Route path="/assessments"><ProtectedRoute component={Assessments} /></Route>
       <Route path="/assessments/:id"><ProtectedRoute component={AssessmentDetail} /></Route>
       <Route path="/learning"><ProtectedRoute component={Learning} /></Route>

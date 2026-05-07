@@ -163,56 +163,61 @@ export default function FreelanceMarketplace() {
         </motion.div>
 
         {/* Project grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {isLoading ? (
-            Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-72 rounded-[3rem]" />)
-          ) : (projects as Array<{ id: number; title: string; description: string; budget: string; skills: string[]; deadline?: string; status: string; bidCount: number }>).map((project, i) => (
-            <motion.div
+            Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-96 rounded-[2.5rem]" />)
+          ) : projects.map((project: any, i: number) => (
+            <motion.div 
               key={project.id}
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.1 }}
+              className="group p-8 glass-light rounded-[2.5rem] border border-black/5 hover:border-primary/20 hover:shadow-2xl hover:shadow-primary/5 transition-all flex flex-col justify-between"
             >
-              <Link href={`/freelance/${project.id}`}>
-                <div
-                  className="group p-10 rounded-[3rem] border border-black/5 bg-white hover:bg-[#030303] transition-all duration-500 hover:shadow-[0_20px_60px_rgba(0,0,0,0.1)] relative overflow-hidden h-full flex flex-col justify-between"
-                  data-testid={`card-project-${project.id}`}
-                >
-                  <div className="absolute top-0 right-0 p-10 opacity-[0.03] group-hover:opacity-10 transition-opacity">
-                    <Code2 className="w-32 h-32 text-primary" />
+              <div className="space-y-6">
+                <div className="flex items-start justify-between">
+                  <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-primary transition-colors">
+                    <Code2 className="w-7 h-7 text-primary group-hover:text-white" />
                   </div>
+                  <Badge className={cn("px-4 py-1.5 rounded-full font-black text-[10px] uppercase tracking-widest border", statusColor[project.status])}>
+                    {project.status.replace("_", " ")}
+                  </Badge>
+                </div>
 
-                  <div>
-                    <div className="flex items-start justify-between mb-8 relative z-10">
-                      <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-primary transition-colors border border-primary/10">
-                        <Code2 className="w-8 h-8 text-primary group-hover:text-white transition-colors" />
-                      </div>
-                      <Badge variant="outline" className={cn(
-                        "rounded-full uppercase tracking-widest text-[10px] font-black px-4 py-1.5",
-                        project.status === "open" ? "border-green-500/20 text-green-600 bg-green-50/50 group-hover:bg-green-500 group-hover:text-white group-hover:border-green-500" : "border-black/10 group-hover:border-white/20 group-hover:text-white"
-                      )}>
-                        {project.status.replace("_", " ")}
-                      </Badge>
+                <div className="space-y-2">
+                  <h3 className="text-xl font-black tracking-tight group-hover:text-primary transition-colors">{project.title}</h3>
+                  <p className="text-sm font-medium text-black/50 line-clamp-2 leading-relaxed">{project.description}</p>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {project.skills?.slice(0, 3).map((skill: string) => (
+                    <Badge key={skill} variant="secondary" className="bg-black/[0.03] text-black/40 border-none font-bold text-[9px] uppercase tracking-widest px-3 py-1">
+                      {skill}
+                    </Badge>
+                  ))}
+                  {project.skills?.length > 3 && <span className="text-[10px] font-black text-black/20">+{project.skills.length - 3}</span>}
+                </div>
+
+                <div className="pt-6 border-t border-black/5 grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <div className="text-[10px] font-black text-black/20 uppercase tracking-widest">Budget</div>
+                    <div className="text-sm font-black text-[#030303] flex items-center gap-1">
+                      <DollarSign className="w-3.5 h-3.5 text-primary" /> {project.budget}
                     </div>
-
-                    <h3 className="text-2xl md:text-3xl font-black mb-4 group-hover:text-white transition-colors tracking-tight leading-tight">{project.title}</h3>
-                    <p className="text-black/40 text-lg font-medium mb-8 group-hover:text-white/50 transition-colors leading-relaxed line-clamp-3">{project.description}</p>
                   </div>
-
-                  <div className="space-y-8">
-                    <div className="flex items-center gap-8 text-[10px] font-black uppercase tracking-widest text-black/30 group-hover:text-white/30">
-                      <span className="flex items-center gap-2.5"><DollarSign className="w-4 h-4 text-primary" />{project.budget}</span>
-                      {project.deadline && <span className="flex items-center gap-2.5"><Clock className="w-4 h-4" />{project.deadline}</span>}
-                      <span className="flex items-center gap-2.5"><Users className="w-4 h-4" />{project.bidCount} Bids</span>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      {project.skills.slice(0, 5).map(s => (
-                        <span key={s} className="text-[10px] font-black uppercase tracking-widest bg-black/5 group-hover:bg-white/10 px-3 py-1.5 rounded-full group-hover:text-white transition-colors">{s}</span>
-                      ))}
+                  <div className="space-y-1">
+                    <div className="text-[10px] font-black text-black/20 uppercase tracking-widest">Bids</div>
+                    <div className="text-sm font-black text-[#030303] flex items-center gap-1">
+                      <Users className="w-3.5 h-3.5 text-primary" /> {project.bidCount} Active
                     </div>
                   </div>
                 </div>
+              </div>
+
+              <Link href={`/freelance/${project.id}`}>
+                <Button className="w-full h-14 rounded-2xl bg-black text-white hover:bg-primary transition-all font-black uppercase tracking-widest text-[10px] mt-8 group-hover:shadow-lg group-hover:shadow-primary/20">
+                  View & Bid
+                </Button>
               </Link>
             </motion.div>
           ))}

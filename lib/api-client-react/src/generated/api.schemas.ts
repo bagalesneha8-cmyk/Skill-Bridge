@@ -70,6 +70,9 @@ export interface User {
   institution?: string;
   location?: string;
   phone?: string;
+  videoResumeUrl?: string;
+  videoResumeThumbnail?: string;
+  communicationScore?: number;
   socialLinks?: SocialLinks;
   privacy?: PrivacySettings;
   xp?: number;
@@ -90,6 +93,9 @@ export interface UpdateUserBody {
   location?: string;
   avatar?: string;
   phone?: string;
+  videoResumeUrl?: string;
+  videoResumeThumbnail?: string;
+  communicationScore?: number;
   socialLinks?: SocialLinks;
   privacy?: PrivacySettings;
 }
@@ -256,6 +262,10 @@ export interface Job {
   location?: string;
   salary?: string;
   deadline?: string;
+  bannerImage?: string;
+  logo?: string;
+  rating?: number;
+  ratingCount?: number;
   postedById?: string;
   applicantCount?: number;
   createdAt?: string;
@@ -914,7 +924,7 @@ export const ListJobsType = {
 } as const;
 
 export type ListApplicationsParams = {
-  jobId?: number;
+  jobId?: string;
   status?: string;
 };
 
@@ -941,6 +951,24 @@ export type SyncResumeDataBody = {
 
 export type SyncResumeData200 = {
   message?: string;
+};
+
+export type UploadVideoResumeBody = {
+  video?: Blob;
+};
+
+export type UploadVideoResume201 = {
+  videoUrl?: string;
+  thumbnailUrl?: string;
+};
+
+export type GetGlobalActivity200Item = {
+  id?: string;
+  user?: string;
+  action?: string;
+  target?: string;
+  time?: string;
+  type?: string;
 };
 
 export type ListFreelanceProjectsParams = {

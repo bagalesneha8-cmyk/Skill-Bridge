@@ -56,6 +56,9 @@ export const LoginResponse = zod.object({
     institution: zod.string().optional(),
     location: zod.string().optional(),
     phone: zod.string().optional(),
+    videoResumeUrl: zod.string().optional(),
+    videoResumeThumbnail: zod.string().optional(),
+    communicationScore: zod.number().optional(),
     socialLinks: zod
       .object({
         linkedin: zod.string().optional(),
@@ -105,6 +108,9 @@ export const GetMeResponse = zod.object({
   institution: zod.string().optional(),
   location: zod.string().optional(),
   phone: zod.string().optional(),
+  videoResumeUrl: zod.string().optional(),
+  videoResumeThumbnail: zod.string().optional(),
+  communicationScore: zod.number().optional(),
   socialLinks: zod
     .object({
       linkedin: zod.string().optional(),
@@ -153,6 +159,9 @@ export const ListUsersResponse = zod.object({
       institution: zod.string().optional(),
       location: zod.string().optional(),
       phone: zod.string().optional(),
+      videoResumeUrl: zod.string().optional(),
+      videoResumeThumbnail: zod.string().optional(),
+      communicationScore: zod.number().optional(),
       socialLinks: zod
         .object({
           linkedin: zod.string().optional(),
@@ -202,6 +211,9 @@ export const GetUserResponse = zod.object({
   institution: zod.string().optional(),
   location: zod.string().optional(),
   phone: zod.string().optional(),
+  videoResumeUrl: zod.string().optional(),
+  videoResumeThumbnail: zod.string().optional(),
+  communicationScore: zod.number().optional(),
   socialLinks: zod
     .object({
       linkedin: zod.string().optional(),
@@ -227,7 +239,7 @@ export const GetUserResponse = zod.object({
  * @summary Update user profile
  */
 export const UpdateUserParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const UpdateUserBody = zod.object({
@@ -237,6 +249,9 @@ export const UpdateUserBody = zod.object({
   location: zod.string().optional(),
   avatar: zod.string().optional(),
   phone: zod.string().optional(),
+  videoResumeUrl: zod.string().optional(),
+  videoResumeThumbnail: zod.string().optional(),
+  communicationScore: zod.number().optional(),
   socialLinks: zod
     .object({
       linkedin: zod.string().optional(),
@@ -270,6 +285,9 @@ export const UpdateUserResponse = zod.object({
   institution: zod.string().optional(),
   location: zod.string().optional(),
   phone: zod.string().optional(),
+  videoResumeUrl: zod.string().optional(),
+  videoResumeThumbnail: zod.string().optional(),
+  communicationScore: zod.number().optional(),
   socialLinks: zod
     .object({
       linkedin: zod.string().optional(),
@@ -778,6 +796,10 @@ export const ListJobsResponse = zod.object({
       location: zod.string().optional(),
       salary: zod.string().optional(),
       deadline: zod.string().optional(),
+      bannerImage: zod.string().optional(),
+      logo: zod.string().optional(),
+      rating: zod.number().optional(),
+      ratingCount: zod.number().optional(),
       postedById: zod.string().optional(),
       applicantCount: zod.number().optional(),
       createdAt: zod.string().optional(),
@@ -807,7 +829,7 @@ export const CreateJobBody = zod.object({
  * @summary Get job by ID
  */
 export const GetJobParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const GetJobResponse = zod.object({
@@ -820,6 +842,10 @@ export const GetJobResponse = zod.object({
   location: zod.string().optional(),
   salary: zod.string().optional(),
   deadline: zod.string().optional(),
+  bannerImage: zod.string().optional(),
+  logo: zod.string().optional(),
+  rating: zod.number().optional(),
+  ratingCount: zod.number().optional(),
   postedById: zod.string().optional(),
   applicantCount: zod.number().optional(),
   createdAt: zod.string().optional(),
@@ -830,7 +856,7 @@ export const GetJobResponse = zod.object({
  * @summary Apply for a job
  */
 export const ApplyJobParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const ApplyJobBody = zod.object({
@@ -852,6 +878,10 @@ export const GetJobMatchesResponseItem = zod.object({
     location: zod.string().optional(),
     salary: zod.string().optional(),
     deadline: zod.string().optional(),
+    bannerImage: zod.string().optional(),
+    logo: zod.string().optional(),
+    rating: zod.number().optional(),
+    ratingCount: zod.number().optional(),
     postedById: zod.string().optional(),
     applicantCount: zod.number().optional(),
     createdAt: zod.string().optional(),
@@ -867,7 +897,7 @@ export const GetJobMatchesResponse = zod.array(GetJobMatchesResponseItem);
  * @summary List applications for current user or recruiter
  */
 export const ListApplicationsQueryParams = zod.object({
-  jobId: zod.coerce.number().optional(),
+  jobId: zod.coerce.string().optional(),
   status: zod.coerce.string().optional(),
 });
 
@@ -889,6 +919,10 @@ export const ListApplicationsResponseItem = zod.object({
       location: zod.string().optional(),
       salary: zod.string().optional(),
       deadline: zod.string().optional(),
+      bannerImage: zod.string().optional(),
+      logo: zod.string().optional(),
+      rating: zod.number().optional(),
+      ratingCount: zod.number().optional(),
       postedById: zod.string().optional(),
       applicantCount: zod.number().optional(),
       createdAt: zod.string().optional(),
@@ -912,6 +946,9 @@ export const ListApplicationsResponseItem = zod.object({
       institution: zod.string().optional(),
       location: zod.string().optional(),
       phone: zod.string().optional(),
+      videoResumeUrl: zod.string().optional(),
+      videoResumeThumbnail: zod.string().optional(),
+      communicationScore: zod.number().optional(),
       socialLinks: zod
         .object({
           linkedin: zod.string().optional(),
@@ -940,7 +977,7 @@ export const ListApplicationsResponse = zod.array(ListApplicationsResponseItem);
  * @summary Update application status
  */
 export const UpdateApplicationParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const UpdateApplicationBody = zod.object({
@@ -965,6 +1002,10 @@ export const UpdateApplicationResponse = zod.object({
       location: zod.string().optional(),
       salary: zod.string().optional(),
       deadline: zod.string().optional(),
+      bannerImage: zod.string().optional(),
+      logo: zod.string().optional(),
+      rating: zod.number().optional(),
+      ratingCount: zod.number().optional(),
       postedById: zod.string().optional(),
       applicantCount: zod.number().optional(),
       createdAt: zod.string().optional(),
@@ -988,6 +1029,9 @@ export const UpdateApplicationResponse = zod.object({
       institution: zod.string().optional(),
       location: zod.string().optional(),
       phone: zod.string().optional(),
+      videoResumeUrl: zod.string().optional(),
+      videoResumeThumbnail: zod.string().optional(),
+      communicationScore: zod.number().optional(),
       socialLinks: zod
         .object({
           linkedin: zod.string().optional(),
@@ -1053,7 +1097,7 @@ export const CreateAssessmentBody = zod.object({
  * @summary Get assessment with questions
  */
 export const GetAssessmentParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const GetAssessmentResponse = zod.object({
@@ -1077,7 +1121,7 @@ export const GetAssessmentResponse = zod.object({
  * @summary Submit assessment answers
  */
 export const SubmitAssessmentParams = zod.object({
-  id: zod.coerce.number(),
+  id: zod.coerce.string(),
 });
 
 export const SubmitAssessmentBody = zod.object({
@@ -1266,6 +1310,13 @@ export const AnalyzeResumeResponse = zod.object({
 });
 
 /**
+ * @summary Upload a video resume (MP4/MOV/WEBM)
+ */
+export const UploadVideoResumeBody = zod.object({
+  video: zod.instanceof(File).optional(),
+});
+
+/**
  * @summary Get career tracking stats for current user
  */
 export const GetCareerStatsResponse = zod.object({
@@ -1330,6 +1381,21 @@ export const GetLeaderboardResponseItem = zod.object({
   badges: zod.number(),
 });
 export const GetLeaderboardResponse = zod.array(GetLeaderboardResponseItem);
+
+/**
+ * @summary Get recent global activity feed
+ */
+export const GetGlobalActivityResponseItem = zod.object({
+  id: zod.string().optional(),
+  user: zod.string().optional(),
+  action: zod.string().optional(),
+  target: zod.string().optional(),
+  time: zod.string().optional(),
+  type: zod.string().optional(),
+});
+export const GetGlobalActivityResponse = zod.array(
+  GetGlobalActivityResponseItem,
+);
 
 /**
  * @summary List freelance projects
@@ -1423,6 +1489,9 @@ export const ListBidsResponseItem = zod.object({
       institution: zod.string().optional(),
       location: zod.string().optional(),
       phone: zod.string().optional(),
+      videoResumeUrl: zod.string().optional(),
+      videoResumeThumbnail: zod.string().optional(),
+      communicationScore: zod.number().optional(),
       socialLinks: zod
         .object({
           linkedin: zod.string().optional(),
@@ -1622,6 +1691,9 @@ export const ListSubmissionsResponseItem = zod.object({
       institution: zod.string().optional(),
       location: zod.string().optional(),
       phone: zod.string().optional(),
+      videoResumeUrl: zod.string().optional(),
+      videoResumeThumbnail: zod.string().optional(),
+      communicationScore: zod.number().optional(),
       socialLinks: zod
         .object({
           linkedin: zod.string().optional(),
@@ -1721,6 +1793,9 @@ export const UpdateSubmissionResponse = zod.object({
       institution: zod.string().optional(),
       location: zod.string().optional(),
       phone: zod.string().optional(),
+      videoResumeUrl: zod.string().optional(),
+      videoResumeThumbnail: zod.string().optional(),
+      communicationScore: zod.number().optional(),
       socialLinks: zod
         .object({
           linkedin: zod.string().optional(),
@@ -1834,6 +1909,10 @@ export const GetDashboardSummaryResponse = zod.object({
         location: zod.string().optional(),
         salary: zod.string().optional(),
         deadline: zod.string().optional(),
+        bannerImage: zod.string().optional(),
+        logo: zod.string().optional(),
+        rating: zod.number().optional(),
+        ratingCount: zod.number().optional(),
         postedById: zod.string().optional(),
         applicantCount: zod.number().optional(),
         createdAt: zod.string().optional(),
@@ -1854,6 +1933,10 @@ export const GetDashboardSummaryResponse = zod.object({
           location: zod.string().optional(),
           salary: zod.string().optional(),
           deadline: zod.string().optional(),
+          bannerImage: zod.string().optional(),
+          logo: zod.string().optional(),
+          rating: zod.number().optional(),
+          ratingCount: zod.number().optional(),
           postedById: zod.string().optional(),
           applicantCount: zod.number().optional(),
           createdAt: zod.string().optional(),

@@ -1,35 +1,62 @@
-import { useGetMe, useGetUserSkills, useGetUserEducation, useGetUserProjects, useGetUserCertifications, useGetUserExperience, useGetResume } from "@workspace/api-client-react";
+import { useGetMe, useGetUser, useGetUserSkills, useGetUserEducation, useGetUserProjects, useGetUserCertifications, useGetUserExperience, useGetResume } from "@workspace/api-client-react";
 import { getAuthHeaders } from "@/lib/api";
 import { useParams } from "wouter";
 import { motion } from "framer-motion";
-import { Github, Linkedin, Globe, Mail, Phone, MapPin, Building, ExternalLink, Briefcase, GraduationCap, Award, Code, CheckCircle2, ChevronRight, Share2, Download, Zap } from "lucide-react";
+import { Github, Linkedin, Globe, Mail, Phone, MapPin, Building, ExternalLink, Briefcase, GraduationCap, Award, Code, CheckCircle2, ChevronRight, Share2, Download, Zap, Video, Star, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Progress } from "@/components/ui/progress";
 
 export default function Portfolio() {
   const { id } = useParams();
   const headers = getAuthHeaders();
   
-  const { data: user, isLoading: loadingUser } = useGetMe({
+  const { data: me, isLoading: loadingMe } = useGetMe({
     request: { headers },
   });
 
-  const userId = id || (user as any)?.id;
+  const { data: specificUser, isLoading: loadingSpecific } = useGetUser(id || "0", {
+    request: { headers },
+    query: { enabled: !!id }
+  });
+
+  const user = id ? specificUser : me;
+  const loadingUser = id ? loadingSpecific : loadingMe;
+
+  const userId = id || (me as any)?.id;
 
   const { data: skills } = useGetUserSkills(userId, { request: { headers }, query: { enabled: !!userId } });
   const { data: education } = useGetUserEducation(userId, { request: { headers }, query: { enabled: !!userId } });
   const { data: projects } = useGetUserProjects(userId, { request: { headers }, query: { enabled: !!userId } });
   const { data: certs } = useGetUserCertifications(userId, { request: { headers }, query: { enabled: !!userId } });
   const { data: experience } = useGetUserExperience(userId, { request: { headers }, query: { enabled: !!userId } });
+  const { data: resumes } = useGetResume({ request: { headers }, query: { enabled: !!userId } });
 
   if (loadingUser) {
     return <div className="min-h-screen flex items-center justify-center bg-white"><Skeleton className="h-64 w-full max-w-4xl rounded-[3rem]" /></div>;
   }
 
   const userData = user as any;
-  const { data: resumes } = useGetResume({ request: { headers }, query: { enabled: !!userId } });
   const activeResume = (resumes as any[])?.find(r => r.isMain) || (resumes as any[])?.[0];
+
+  const calculateCompletion = () => {
+    let score = 0;
+    if (userData?.name) score += 5;
+    if (userData?.bio) score += 5;
+    if (userData?.location) score += 5;
+    if (userData?.phone) score += 5;
+    if (userData?.avatar) score += 5;
+    if (userData?.socialLinks?.linkedin || userData?.socialLinks?.github || userData?.socialLinks?.portfolio) score += 10;
+    if ((skills as any[])?.length > 0) score += 15;
+    if ((education as any[])?.length > 0) score += 15;
+    if ((experience as any[])?.length > 0) score += 15;
+    if ((projects as any[])?.length > 0) score += 10;
+    if (userData?.videoResumeUrl) score += 10;
+    return score;
+  };
+
+  const completion = calculateCompletion();
 
   return (
     <div className="min-h-screen bg-[#FDFDFD] text-[#030303] selection:bg-primary selection:text-white">
@@ -40,9 +67,13 @@ export default function Portfolio() {
           <span className="font-black tracking-tighter text-xl">SKILLSYNC <span className="text-primary">PORTFOLIO</span></span>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 px-4 py-2 bg-black/5 rounded-full mr-4">
+          <div className="flex items-center gap-2 px-4 py-2 bg-black/5 rounded-full">
             <Zap className="w-4 h-4 text-primary" />
-            <span className="text-[10px] font-black uppercase tracking-widest">ATS Score: {activeResume?.atsScore || 0}%</span>
+            <span className="text-[10px] font-black uppercase tracking-widest">ATS: {activeResume?.atsScore || 0}%</span>
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 bg-black/5 rounded-full mr-4">
+            <Star className="w-4 h-4 text-primary" />
+            <span className="text-[10px] font-black uppercase tracking-widest">Profile: {completion}%</span>
           </div>
           <Button variant="outline" className="rounded-full font-bold text-xs uppercase tracking-widest h-10 px-6 border-black/10">
             <Share2 className="w-4 h-4 mr-2" /> Share
@@ -111,6 +142,52 @@ export default function Portfolio() {
             </div>
           </div>
         </section>
+
+        {/* Video Resume Section */}
+        {userData?.videoResumeUrl && (
+          <section className="space-y-12">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+              <div className="space-y-4 text-center md:text-left">
+                <h2 className="text-5xl font-black tracking-tighter flex items-center gap-4 justify-center md:justify-start">
+                  <Video className="w-10 h-10 text-primary" /> Video Resume
+                </h2>
+                <p className="text-black/40 font-bold uppercase tracking-widest text-xs">Watch a quick professional introduction</p>
+              </div>
+              
+              <div className="flex items-center gap-6 p-6 bg-white border border-black/5 rounded-[2.5rem] shadow-xl shadow-black/[0.02]">
+                <div className="space-y-2 text-right">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-primary">Communication Score</div>
+                  <div className="text-3xl font-black tracking-tight">{userData?.communicationScore || 0}%</div>
+                </div>
+                <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-primary" />
+                </div>
+              </div>
+            </div>
+
+            <div className="relative aspect-video max-w-4xl mx-auto bg-[#030303] rounded-[3.5rem] overflow-hidden shadow-2xl border-8 border-white group">
+              <video 
+                src={userData.videoResumeUrl} 
+                className="w-full h-full object-cover"
+                poster={userData.videoResumeThumbnail}
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-100 group-hover:bg-black/20 transition-all cursor-pointer" onClick={(e) => {
+                const video = e.currentTarget.previousElementSibling as HTMLVideoElement;
+                if (video.paused) {
+                  video.play();
+                  e.currentTarget.style.opacity = "0";
+                } else {
+                  video.pause();
+                  e.currentTarget.style.opacity = "1";
+                }
+              }}>
+                <div className="w-24 h-24 bg-primary rounded-full flex items-center justify-center shadow-2xl shadow-primary/40 group-hover:scale-110 transition-transform">
+                  <Play className="w-10 h-10 text-[#030303] fill-current ml-1" />
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Experience & Education */}
         <section className="grid md:grid-cols-2 gap-20">

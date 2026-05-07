@@ -57,6 +57,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Link } from "wouter";
+import { VideoResume } from "@/components/video-resume";
+import { Progress } from "@/components/ui/progress";
 
 export default function Profile() {
   const { user: authUser } = useAuth();
@@ -122,6 +124,24 @@ export default function Profile() {
 
   const levelProgress = Math.min(100, ((user?.xp ?? 0) % 500) / 5);
 
+  const calculateCompletion = () => {
+    let score = 0;
+    if (user?.name) score += 5;
+    if (user?.bio) score += 5;
+    if (user?.location) score += 5;
+    if (user?.phone) score += 5;
+    if (user?.avatar) score += 5;
+    if (user?.socialLinks?.linkedin || user?.socialLinks?.github || user?.socialLinks?.portfolio) score += 10;
+    if ((skills as any[])?.length > 0) score += 15;
+    if ((education as any[])?.length > 0) score += 15;
+    if ((experience as any[])?.length > 0) score += 15;
+    if ((projects as any[])?.length > 0) score += 10;
+    if (user?.videoResumeUrl) score += 10;
+    return score;
+  };
+
+  const completion = calculateCompletion();
+
   return (
     <div className="min-h-screen bg-white selection:bg-primary selection:text-white relative">
       {/* Universal Background Elements */}
@@ -131,6 +151,31 @@ export default function Profile() {
       </div>
 
       <div className="relative z-10 p-8 space-y-10 max-w-7xl mx-auto">
+        {/* Profile Completion Bar */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-8 glass-light rounded-[2.5rem] border border-black/5 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl shadow-black/[0.02]"
+        >
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
+              <Zap className="w-8 h-8 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-xl font-black tracking-tight">Profile Completion</h3>
+              <p className="text-black/40 font-bold text-[10px] uppercase tracking-[0.2em] mt-1">Complete your profile to unlock more opportunities</p>
+            </div>
+          </div>
+          
+          <div className="flex-1 max-w-2xl w-full space-y-3">
+            <div className="flex justify-between items-end">
+              <span className="text-xs font-black uppercase tracking-widest text-primary">{completion}% Complete</span>
+              <span className="text-[10px] font-bold text-black/30 uppercase tracking-widest">Next Milestone: {completion < 100 ? "Verified Professional" : "Expert Profile"}</span>
+            </div>
+            <Progress value={completion} className="h-3 bg-primary/10" />
+          </div>
+        </motion.div>
+
         {/* Profile Hero Section */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -152,19 +197,24 @@ export default function Profile() {
                 <div className="inline-flex items-center gap-2 bg-primary/20 text-primary text-[10px] uppercase tracking-[0.2em] font-black px-4 py-1.5 rounded-full border border-primary/20">
                   Professional Identity
                 </div>
-                <h1 className="text-5xl md:text-6xl font-black tracking-tighter leading-none">{user?.name}</h1>
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-white/50 font-bold text-sm uppercase tracking-widest">
-                  <span className="text-primary">{user?.role?.replace("_", " ")}</span>
+                <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-tight bg-gradient-to-r from-white via-white to-white/40 bg-clip-text text-transparent">
+                  {user?.name || "Professional Profile"}
+                </h1>
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 text-white/50 font-bold text-sm uppercase tracking-widest">
+                  <span className="text-primary bg-primary/10 px-4 py-1.5 rounded-full border border-primary/20">{user?.role?.replace("_", " ")}</span>
                   {user?.institution && (
-                    <span className="flex items-center gap-2">
-                      <Building className="w-4 h-4" /> {user.institution}
+                    <span className="flex items-center gap-2 hover:text-white transition-colors cursor-default">
+                      <Building className="w-4 h-4 text-primary" /> {user.institution}
                     </span>
                   )}
                   {user?.location && (
-                    <span className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4" /> {user.location}
+                    <span className="flex items-center gap-2 hover:text-white transition-colors cursor-default">
+                      <MapPin className="w-4 h-4 text-primary" /> {user.location}
                     </span>
                   )}
+                  <span className="flex items-center gap-2 text-green-400/60">
+                    <CheckCircle2 className="w-4 h-4" /> Detected from Resume
+                  </span>
                 </div>
               </div>
             </div>
@@ -296,7 +346,7 @@ export default function Profile() {
           <div className="lg:col-span-3">
             <Tabs defaultValue="about" className="w-full">
               <TabsList className="w-full justify-start gap-8 bg-transparent h-auto p-0 mb-10 border-b border-black/5">
-                {["about", "experience", "projects", "achievements", "analytics"].map((tab) => (
+                {["about", "experience", "projects", "achievements", "video resume", "analytics"].map((tab) => (
                   <TabsTrigger 
                     key={tab}
                     value={tab} 
@@ -311,12 +361,20 @@ export default function Profile() {
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-10 glass-light rounded-[3rem] border border-black/5 space-y-6"
+                  className="p-12 glass-light rounded-[3.5rem] border border-black/5 relative overflow-hidden group"
                 >
-                  <h2 className="text-sm font-black uppercase tracking-widest text-black/20">Professional Summary</h2>
-                  <p className="text-xl font-medium leading-relaxed text-black/70 italic">
-                    "{user?.bio || "Add a professional bio to showcase your personality and goals."}"
-                  </p>
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 transition-all group-hover:bg-primary/10" />
+                  <div className="space-y-8 relative z-10">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
+                        <User className="w-6 h-6 text-primary" />
+                      </div>
+                      <h3 className="text-xl font-black tracking-tight text-[#030303]">Professional Summary</h3>
+                    </div>
+                    <p className="text-lg font-medium text-black/60 leading-relaxed max-w-4xl italic">
+                      "{user?.bio || "No summary provided yet. Upload a resume to automatically generate a professional bio based on your experience and skills."}"
+                    </p>
+                  </div>
                 </motion.div>
 
                 {/* Skills Section */}
@@ -324,22 +382,25 @@ export default function Profile() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="p-10 glass-light rounded-[3rem] border border-black/5 space-y-10"
+                  className="p-12 glass-light rounded-[3.5rem] border border-black/5 space-y-12"
                 >
                   <div className="flex flex-row items-center justify-between">
-                    <div className="space-y-1">
-                      <h2 className="text-sm font-black uppercase tracking-widest text-black/20">Skills & Expertise</h2>
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
+                        <Code className="w-6 h-6 text-primary" />
+                      </div>
+                      <h3 className="text-xl font-black tracking-tight text-[#030303]">Skills & Expertise</h3>
                     </div>
                     <AddSkillDialog userId={userId} headers={headers} />
                   </div>
                   
-                  <div className="grid gap-10">
+                  <div className="grid md:grid-cols-2 gap-12">
                     {["Programming Languages", "Web Development", "AI/ML", "UI/UX", "Cloud Computing", "Communication Skills", "Other"].map(cat => {
                       const catSkills = (skills as any[])?.filter(s => s.category === cat) || [];
                       if (catSkills.length === 0) return null;
                       return (
-                        <div key={cat} className="space-y-4">
-                          <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.25em]">{cat}</h4>
+                        <div key={cat} className="space-y-6">
+                          <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] border-l-2 border-primary pl-4">{cat}</h4>
                           <div className="flex flex-wrap gap-3">
                             {catSkills.map(skill => (
                               <SkillBadge key={skill.id} skill={skill} userId={userId} headers={headers} />
@@ -443,6 +504,16 @@ export default function Profile() {
                     ))}
                   </div>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="video resume" className="space-y-10 outline-none">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-12 glass-light rounded-[3.5rem] border border-black/5"
+                >
+                  <VideoResume user={user} onUpdate={() => queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() })} />
+                </motion.div>
               </TabsContent>
 
               <TabsContent value="analytics" className="space-y-10 outline-none">

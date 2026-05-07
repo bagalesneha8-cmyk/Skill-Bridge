@@ -166,7 +166,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -743,7 +743,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "200":
           description: Job
@@ -762,7 +762,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -801,7 +801,7 @@ paths:
         - name: jobId
           in: query
           schema:
-            type: integer
+            type: string
         - name: status
           in: query
           schema:
@@ -826,7 +826,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -889,7 +889,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         "200":
           description: Assessment with questions
@@ -908,7 +908,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         required: true
         content:
@@ -1089,6 +1089,33 @@ paths:
               schema:
                 $ref: "#/components/schemas/ResumeAnalysis"
 
+  /resume/video-upload:
+    post:
+      operationId: uploadVideoResume
+      tags: [resume]
+      summary: Upload a video resume (MP4/MOV/WEBM)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                video:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Video uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  videoUrl:
+                    type: string
+                  thumbnailUrl:
+                    type: string
+
   # CAREER
   /career/stats:
     get:
@@ -1145,6 +1172,34 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/LeaderboardEntry"
+
+  /activity/global:
+    get:
+      operationId: getGlobalActivity
+      tags: [career]
+      summary: Get recent global activity feed
+      responses:
+        "200":
+          description: Global activity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    user:
+                      type: string
+                    action:
+                      type: string
+                    target:
+                      type: string
+                    time:
+                      type: string
+                    type:
+                      type: string
 
   # FREELANCE
   /freelance/projects:
@@ -1576,6 +1631,12 @@ components:
           type: string
         phone:
           type: string
+        videoResumeUrl:
+          type: string
+        videoResumeThumbnail:
+          type: string
+        communicationScore:
+          type: integer
         socialLinks:
           $ref: "#/components/schemas/SocialLinks"
         privacy:
@@ -1627,6 +1688,12 @@ components:
           type: string
         phone:
           type: string
+        videoResumeUrl:
+          type: string
+        videoResumeThumbnail:
+          type: string
+        communicationScore:
+          type: integer
         socialLinks:
           $ref: "#/components/schemas/SocialLinks"
         privacy:
@@ -1841,6 +1908,14 @@ components:
           type: string
         deadline:
           type: string
+        bannerImage:
+          type: string
+        logo:
+          type: string
+        rating:
+          type: number
+        ratingCount:
+          type: integer
         postedById:
           type: string
         applicantCount:

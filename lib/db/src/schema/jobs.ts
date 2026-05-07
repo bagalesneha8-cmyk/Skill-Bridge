@@ -9,6 +9,10 @@ const jobSchema = new mongoose.Schema({
   location: { type: String },
   salary: { type: String },
   deadline: { type: String },
+  bannerImage: { type: String },
+  logo: { type: String },
+  rating: { type: Number, default: 0 },
+  ratingCount: { type: Number, default: 0 },
   postedById: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   applicantCount: { type: Number, required: true, default: 0 },
   status: { type: String, required: true, default: "open" },
@@ -19,6 +23,12 @@ const jobApplicationSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   status: { type: String, required: true, default: "pending" },
   coverLetter: { type: String },
+  interview: {
+    scheduledAt: { type: Date },
+    link: { type: String },
+    instructions: { type: String },
+    meetingTool: { type: String, enum: ["google_meet", "zoom", "teams", "other"] },
+  },
 }, { timestamps: { createdAt: "appliedAt", updatedAt: true } });
 
 export const Job = mongoose.model("Job", jobSchema);

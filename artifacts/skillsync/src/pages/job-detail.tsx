@@ -1,14 +1,14 @@
 import { useRoute, useLocation } from "wouter";
-import { useGetJob, useApplyJob, useGetJobMatches, getGetJobQueryKey, getGetJobMatchesQueryKey, getListApplicationsQueryKey } from "@workspace/api-client-react";
+import { useGetJob, useApplyJob, useGetJobMatches, useListApplications, getGetJobQueryKey, getGetJobMatchesQueryKey, getListApplicationsQueryKey } from "@workspace/api-client-react";
 import { getAuthHeaders } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, MapPin, Briefcase, Clock, Users, Zap, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, MapPin, Briefcase, Clock, Users, Zap, CheckCircle, XCircle, Timer } from "lucide-react";
 import { Link } from "wouter";
 import { cn } from "@/lib/utils";
 
@@ -29,7 +29,18 @@ export default function JobDetail() {
     request: { headers },
   });
 
+  const { data: applications } = useListApplications({}, {
+    request: { headers },
+  });
+
   const applyMutation = useApplyJob();
+
+  useEffect(() => {
+    if (Array.isArray(applications) && id) {
+      const hasApplied = applications.some((app: any) => app.jobId === id || app.job?.id === id);
+      if (hasApplied) setApplied(true);
+    }
+  }, [applications, id]);
 
   const match = Array.isArray(matches) ? matches.find((m: { job: { id: string } }) => m.job.id === id) : null;
 
@@ -40,8 +51,8 @@ export default function JobDetail() {
         queryClient.invalidateQueries({ queryKey: getListApplicationsQueryKey({}) });
         toast({ title: "Applied successfully!", description: "Your application has been submitted." });
       },
-      onError: (err: unknown) => {
-        const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? "Application failed";
+      onError: (err: any) => {
+        const msg = err.response?.data?.error || err.message || "Application failed";
         toast({ title: "Error", description: msg, variant: "destructive" });
       },
     });

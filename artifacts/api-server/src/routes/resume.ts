@@ -8,8 +8,8 @@ import mammoth from "mammoth";
 const router: IRouter = Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-// GET /
-router.get("/", async (req, res): Promise<void> => {
+// GET /resume
+router.get("/resume", async (req, res): Promise<void> => {
   const userId = getUserIdFromToken(req.headers.authorization);
   if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
@@ -21,8 +21,8 @@ router.get("/", async (req, res): Promise<void> => {
   }
 });
 
-// POST /upload
-router.post("/upload", upload.single("resume"), async (req, res): Promise<void> => {
+// POST /resume/upload
+router.post("/resume/upload", upload.single("resume"), async (req, res): Promise<void> => {
   console.log("Upload request received");
   const userId = getUserIdFromToken(req.headers.authorization);
   if (!userId) { 
@@ -92,8 +92,8 @@ router.post("/upload", upload.single("resume"), async (req, res): Promise<void> 
   }
 });
 
-// POST /sync
-router.post("/sync", async (req, res): Promise<void> => {
+// POST /resume/sync
+router.post("/resume/sync", async (req, res): Promise<void> => {
   const userId = getUserIdFromToken(req.headers.authorization);
   if (!userId) { res.status(401).json({ error: "Unauthorized" }); return; }
 
@@ -151,14 +151,66 @@ router.post("/sync", async (req, res): Promise<void> => {
   res.json({ message: "Profile updated successfully" });
 });
 
+// POST /resume/video-upload
+router.post("/resume/video-upload", upload.single("video"), async (req, res): Promise<void> => {
+  console.log("[VIDEO UPLOAD DEBUG] Request reached handler");
+  const userId = getUserIdFromToken(req.headers.authorization);
+  if (!userId) { 
+    console.log("[VIDEO UPLOAD DEBUG] Unauthorized upload attempt - No valid token");
+    res.status(401).json({ error: "Unauthorized" }); 
+    return; 
+  }
+
+  if (!req.file) {
+    console.log("[VIDEO UPLOAD DEBUG] No file found in req.file. Multer might have failed.");
+    console.log("[VIDEO UPLOAD DEBUG] Request body:", req.body);
+    console.log("[VIDEO UPLOAD DEBUG] Request headers:", req.headers);
+    res.status(400).json({ error: "No video file uploaded or file type not accepted" });
+    return;
+  }
+
+  console.log(`[VIDEO UPLOAD DEBUG] File received: ${req.file.originalname}, size: ${req.file.size}, type: ${req.file.mimetype}`);
+
+  // Simulate video upload to cloud storage
+  // In a real app, we'd upload to S3/Cloudinary and get a URL
+  // Here we'll just return a mock URL
+  const videoUrl = `https://storage.skillsync.ai/videos/${userId}/${req.file.originalname}`;
+  const thumbnailUrl = `https://storage.skillsync.ai/thumbnails/${userId}/${req.file.originalname.replace(/\.[^/.]+$/, "")}.jpg`;
+
+  console.log(`Updating user ${userId} with video info`);
+  // Update user with video resume info
+  await User.findByIdAndUpdate(userId, {
+    videoResumeUrl: videoUrl,
+    videoResumeThumbnail: thumbnailUrl,
+    communicationScore: Math.floor(Math.random() * 40) + 60, // Simulate AI scoring
+  });
+
+  console.log("Video upload simulation complete");
+  res.status(201).json({ videoUrl, thumbnailUrl });
+});
+
 async function parseResumeWithAI(text: string) {
   // Enhanced Simulation of AI Parsing
+  const lines = text.split("\n").map(l => l.trim()).filter(l => l.length > 0);
   const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
   const phoneMatch = text.match(/(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
-  const nameMatch = text.split("\n")[0].trim(); // Simple heuristic: first line is name
+  
+  // Improved name heuristic: first line that doesn't look like a label or header
+  let nameMatch = lines[0] || "Unknown";
+  for (const line of lines.slice(0, 5)) {
+    if (!/email|phone|address|cgpa|gpa|objective|summary|skills|experience|education/i.test(line) && line.split(" ").length >= 2) {
+      nameMatch = line;
+      break;
+    }
+  }
 
   const skillRegex = /\b(javascript|python|react|node\.?js|typescript|java|c\+\+|sql|postgresql|mongodb|aws|docker|kubernetes|machine learning|tensorflow|pytorch|html|css|git|agile|scrum|rest api|graphql|next\.js|tailwind|express|go|rust|devops|azure|gcp)\b/gi;
   const skills = [...new Set((text.match(skillRegex) || []).map(s => s.toLowerCase()))];
+
+  // Extract Social Links
+  const linkedinMatch = text.match(/linkedin\.com\/in\/[a-zA-Z0-9-]+/i);
+  const githubMatch = text.match(/github\.com\/[a-zA-Z0-9-]+/i);
+  const portfolioMatch = text.match(/(portfolio|personal-website|website)\.?\s*(http[s]?:\/\/[^\s]+)/i);
 
   // Heuristic for experience and education
   const experience: any[] = [];
@@ -166,13 +218,68 @@ async function parseResumeWithAI(text: string) {
   const projects: any[] = [];
   const certifications: any[] = [];
 
-  // Extract Social Links
-  const linkedinMatch = text.match(/linkedin\.com\/in\/[a-zA-Z0-9-]+/i);
-  const githubMatch = text.match(/github\.com\/[a-zA-Z0-9-]+/i);
-  const portfolioMatch = text.match(/(portfolio|personal-website|website)\.?\s*(http[s]?:\/\/[^\s]+)/i);
+  // Basic Section Extraction
+  const sections: Record<string, string> = {};
+  const sectionHeaders = ["EXPERIENCE", "WORK EXPERIENCE", "EDUCATION", "PROJECTS", "CERTIFICATIONS", "SKILLS", "SUMMARY", "OBJECTIVE"];
+  
+  let currentSection = "HEADER";
+  sections[currentSection] = "";
 
-  // Split text into sections (very basic)
-  const sections = text.split(/\n(?=EXPERIENCE|WORK EXPERIENCE|EDUCATION|PROJECTS|CERTIFICATIONS|SKILLS)/i);
+  for (const line of lines) {
+    const matchedHeader = sectionHeaders.find(h => line.toUpperCase().includes(h) && line.length < 30);
+    if (matchedHeader) {
+      currentSection = matchedHeader;
+      sections[currentSection] = "";
+    } else {
+      sections[currentSection] += line + "\n";
+    }
+  }
+
+  // Parse Education
+  const eduContent = sections["EDUCATION"] || "";
+  if (eduContent) {
+    const eduLines = eduContent.split("\n").filter(l => l.trim().length > 5);
+    for (const line of eduLines) {
+      const degreeMatch = line.match(/(Bachelor|Master|B\.?S|M\.?S|Ph\.?D|B\.?E|B\.?Tech|Diploma)\b/i);
+      if (degreeMatch) {
+        education.push({
+          degree: line,
+          institution: "University/College",
+          year: line.match(/\d{4}/)?.[0] || "Present"
+        });
+      }
+    }
+  }
+
+  // Parse Experience
+  const expContent = sections["EXPERIENCE"] || sections["WORK EXPERIENCE"] || "";
+  if (expContent) {
+    const expLines = expContent.split("\n").filter(l => l.trim().length > 5);
+    for (let i = 0; i < expLines.length; i++) {
+      const line = expLines[i];
+      if (/\b(Developer|Engineer|Manager|Intern|Analyst|Designer|Consultant)\b/i.test(line)) {
+        experience.push({
+          position: line,
+          company: expLines[i + 1] || "Company",
+          duration: line.match(/\d{4}\s*-\s*(\d{4}|Present)/i)?.[0] || "Duration"
+        });
+        i++; // skip next line as it's probably the company
+      }
+    }
+  }
+
+  // Parse Certifications
+  const certContent = sections["CERTIFICATIONS"] || "";
+  if (certContent) {
+    const certLines = certContent.split("\n").filter(l => l.trim().length > 5);
+    for (const line of certLines) {
+      certifications.push({
+        name: line,
+        issuer: "Organization",
+        date: line.match(/\d{4}/)?.[0] || "Date"
+      });
+    }
+  }
 
   // Basic ATS Score calculation
   const atsScore = Math.min(95, 40 + (skills.length * 2) + (text.length > 1000 ? 10 : 0));
@@ -182,8 +289,8 @@ async function parseResumeWithAI(text: string) {
       name: nameMatch.length < 50 ? nameMatch : "Unknown",
       email: emailMatch ? emailMatch[0] : "",
       phone: phoneMatch ? phoneMatch[0] : "",
-      location: "Detected from resume", // Heuristic needed
-      summary: text.slice(0, 300) + "...",
+      location: "Detected from resume",
+      summary: (sections["SUMMARY"] || sections["OBJECTIVE"] || text.slice(0, 300)).slice(0, 500),
       socialLinks: {
         linkedin: linkedinMatch ? `https://${linkedinMatch[0]}` : "",
         github: githubMatch ? `https://${githubMatch[0]}` : "",
@@ -191,17 +298,17 @@ async function parseResumeWithAI(text: string) {
       }
     },
     skills,
-    experience, // In a real app, these would be extracted using LLM
+    experience,
     education,
     projects,
     certifications,
-    summary: text.slice(0, 500),
+    summary: (sections["SUMMARY"] || sections["OBJECTIVE"] || text.slice(0, 500)).slice(0, 500),
     atsScore,
   };
 }
 
-// POST /analyze
-router.post("/analyze", async (req, res): Promise<void> => {
+// POST /resume/analyze
+router.post("/resume/analyze", async (req, res): Promise<void> => {
   const { text, targetJobTitle } = req.body;
 
   if (!text) {

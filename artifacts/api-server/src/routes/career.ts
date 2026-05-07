@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { User, JobApplication, AssessmentResult, FreelanceProject, Badge, Job } from "@workspace/db";
+import { User, JobApplication, AssessmentResult, FreelanceProject, Badge } from "@workspace/db";
 import { getUserIdFromToken } from "./auth";
 
 const router: IRouter = Router();
@@ -93,5 +93,111 @@ router.get("/career/badges", async (req, res): Promise<void> => {
 
   res.json({ xp: user.xp, level: user.level, badges, rank });
 });
+
+// GET /leaderboard
+router.get("/leaderboard", async (req, res): Promise<void> => {
+  const { category = "global" } = req.query;
+  
+  // Fetch all users to calculate rankings
+  const users = await User.find({ "privacy.isPublic": true });
+  
+  // For each user, fetch their activity to calculate weighted score
+  const leaderboardData = await Promise.all(users.map(async (user) => {
+    const assessments = await AssessmentResult.find({ userId: user._id });
+    const projects = await FreelanceProject.find({ clientId: user._id }); // Assuming clientId is the user
+    
+    const avgAssessmentScore = assessments.length > 0 
+      ? assessments.reduce((sum, r) => sum + r.score, 0) / assessments.length 
+      : 0;
+    
+    // Weighted scoring logic as requested:
+    // XP = 40% (normalized against 10000 XP)
+    // Assessments = 25% (normalized against 100 score)
+    // Streak = 15% (normalized against 100 days)
+    // Hackathons/Projects = 20% (normalized against 10 projects)
+    
+    const xpWeight = Math.min(100, (user.xp / 10000) * 100) * 0.4;
+    const assessWeight = avgAssessmentScore * 0.25;
+    const streakWeight = Math.min(100, (user.streak / 100) * 100) * 0.15;
+    const activityWeight = Math.min(100, (projects.length / 10) * 100) * 0.2;
+    
+    const totalScore = Math.round(xpWeight + assessWeight + streakWeight + activityWeight);
+
+    return {
+      userId: user._id.toString(),
+      name: user.name,
+      avatar: user.name[0].toUpperCase(),
+      role: user.bio || "Student",
+      xp: user.xp,
+      level: user.level,
+      streak: user.streak,
+      skillScore: Math.round(avgAssessmentScore),
+      totalScore,
+      country: user.location || "International",
+      verified: user.xp > 5000, // Example verification logic
+      growth: "+5%", // Mock growth for now
+    };
+  }));
+
+  // Sort by total score
+  const sortedLeaderboard = leaderboardData
+    .sort((a, b) => b.totalScore - a.totalScore)
+    .map((entry, index) => ({
+      ...entry,
+      rank: index + 1
+    }));
+
+  res.json(sortedLeaderboard);
+});
+
+// GET /activity/global
+router.get("/activity/global", async (req, res): Promise<void> => {
+  const assessments = await AssessmentResult.find()
+    .sort({ completedAt: -1 })
+    .limit(5)
+    .populate("userId", "name");
+
+  const applications = await JobApplication.find()
+    .sort({ appliedAt: -1 })
+    .limit(5)
+    .populate("userId", "name")
+    .populate("jobId", "title");
+
+  const activity = [
+    ...assessments.map(a => ({
+      id: `assess-${a._id}`,
+      user: (a.userId as any).name,
+      action: a.passed ? "earned +50 XP in" : "completed",
+      target: "AI Assessment",
+      time: a.completedAt,
+      type: "assessment"
+    })),
+    ...applications.map(app => ({
+      id: `app-${app._id}`,
+      user: (app.userId as any).name,
+      action: "applied for",
+      target: (app.jobId as any).title,
+      time: app.appliedAt,
+      type: "application"
+    }))
+  ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+  .slice(0, 10)
+  .map(item => ({
+    ...item,
+    time: formatTimeAgo(item.time)
+  }));
+
+  res.json(activity);
+});
+
+function formatTimeAgo(date: Date) {
+  const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
 
 export default router;
