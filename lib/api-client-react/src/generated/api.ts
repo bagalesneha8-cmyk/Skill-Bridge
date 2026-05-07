@@ -44,6 +44,7 @@ import type {
   FreelanceProject,
   FreelanceProjectsListResponse,
   GamificationProfile,
+  GetGlobalActivity200Item,
   HealthStatus,
   Job,
   JobApplication,
@@ -4621,6 +4622,81 @@ export function useGetLeaderboard<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetLeaderboardQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get recent global activity feed
+ */
+export const getGetGlobalActivityUrl = () => {
+  return `/api/activity/global`;
+};
+
+export const getGlobalActivity = async (
+  options?: RequestInit,
+): Promise<GetGlobalActivity200Item[]> => {
+  return customFetch<GetGlobalActivity200Item[]>(getGetGlobalActivityUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetGlobalActivityQueryKey = () => {
+  return [`/api/activity/global`] as const;
+};
+
+export const getGetGlobalActivityQueryOptions = <
+  TData = Awaited<ReturnType<typeof getGlobalActivity>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getGlobalActivity>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetGlobalActivityQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getGlobalActivity>>
+  > = ({ signal }) => getGlobalActivity({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getGlobalActivity>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetGlobalActivityQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getGlobalActivity>>
+>;
+export type GetGlobalActivityQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get recent global activity feed
+ */
+
+export function useGetGlobalActivity<
+  TData = Awaited<ReturnType<typeof getGlobalActivity>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getGlobalActivity>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetGlobalActivityQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

@@ -1363,6 +1363,21 @@ export const GetLeaderboardResponseItem = zod.object({
 export const GetLeaderboardResponse = zod.array(GetLeaderboardResponseItem);
 
 /**
+ * @summary Get recent global activity feed
+ */
+export const GetGlobalActivityResponseItem = zod.object({
+  id: zod.string().optional(),
+  user: zod.string().optional(),
+  action: zod.string().optional(),
+  target: zod.string().optional(),
+  time: zod.string().optional(),
+  type: zod.string().optional(),
+});
+export const GetGlobalActivityResponse = zod.array(
+  GetGlobalActivityResponseItem,
+);
+
+/**
  * @summary List freelance projects
  */
 export const ListFreelanceProjectsQueryParams = zod.object({

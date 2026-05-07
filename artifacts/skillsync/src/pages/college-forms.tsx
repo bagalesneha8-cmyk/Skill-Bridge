@@ -4,7 +4,7 @@ import { getAuthHeaders } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
-import { GraduationCap, Clock, Users, Plus, ChevronRight, FileText } from "lucide-react";
+import { GraduationCap, Clock, Users, Plus, ChevronRight, FileText, Briefcase, Calendar, BookOpen, ShieldCheck, Library, Home, Award, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
+import { ApplyFormModal } from "@/components/apply-form-modal";
 
 const formTypes = ["internship", "hackathon", "leave", "project", "assignment", "other"];
 
@@ -28,12 +29,157 @@ const typeColor: Record<string, string> = {
   other: "text-gray-600 bg-gray-500/10 border-gray-500/30",
 };
 
+const statusColor: Record<string, string> = {
+  "Open": "text-blue-600 bg-blue-500/10 border-blue-500/30",
+  "Closing Soon": "text-yellow-600 bg-yellow-500/10 border-yellow-500/30",
+  "Urgent": "text-red-600 bg-red-500/10 border-red-500/30",
+};
+
+const Zap = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 14.71 13 3l-1.35 8.29H20L11 21l1.35-8.29H4Z"/></svg>
+);
+
+const Globe = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+);
+
+const CheckCircle = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+);
+
+const dummyForms = [
+  {
+    id: "d1",
+    title: "Internship NOC Request",
+    description: "Official No Objection Certificate for off-campus summer internships and industrial training programs.",
+    department: "Career Development Cell",
+    deadline: "2026-06-15",
+    status: "Open",
+    type: "internship",
+    icon: Briefcase
+  },
+  {
+    id: "d2",
+    title: "Leave Application",
+    description: "Formal request for academic leave due to personal reasons or medical emergencies.",
+    department: "Dean of Students",
+    deadline: "2026-05-30",
+    status: "Open",
+    type: "leave",
+    icon: Calendar
+  },
+  {
+    id: "d3",
+    title: "Bonafide Certificate Request",
+    description: "Request for student verification certificate for passport, bank, or scholarship purposes.",
+    department: "Academic Office",
+    deadline: "2026-12-31",
+    status: "Open",
+    type: "other",
+    icon: ShieldCheck
+  },
+  {
+    id: "d4",
+    title: "OD (On Duty) Permission",
+    description: "Permission for attending hackathons, workshops, or inter-college competitions.",
+    department: "Student Affairs",
+    deadline: "2026-05-20",
+    status: "Urgent",
+    type: "hackathon",
+    icon: Zap
+  },
+  {
+    id: "d5",
+    title: "Project Approval Form",
+    description: "Initial proposal submission for final year capstone projects and research work.",
+    department: "Department Research Committee",
+    deadline: "2026-05-15",
+    status: "Closing Soon",
+    type: "project",
+    icon: BookOpen
+  },
+  {
+    id: "d6",
+    title: "Industrial Visit Permission",
+    description: "Consent form and department approval for organized industrial visits and field trips.",
+    department: "Mechanical/Civil Dept",
+    deadline: "2026-06-01",
+    status: "Open",
+    type: "other",
+    icon: Globe
+  },
+  {
+    id: "d7",
+    title: "Scholarship Verification Form",
+    description: "Verification of academic records and attendance for government and private scholarship applications.",
+    department: "Financial Aid Office",
+    deadline: "2026-05-25",
+    status: "Urgent",
+    type: "other",
+    icon: Award
+  },
+  {
+    id: "d8",
+    title: "Exam Hall Ticket Request",
+    description: "Request for issuance of hall tickets for upcoming semester examinations.",
+    department: "Examination Cell",
+    deadline: "2026-05-18",
+    status: "Closing Soon",
+    type: "assignment",
+    icon: FileText
+  },
+  {
+    id: "d9",
+    title: "Semester Fee Extension",
+    description: "Request for extension of deadline for payment of semester academic and hostel fees.",
+    department: "Accounts Department",
+    deadline: "2026-05-12",
+    status: "Urgent",
+    type: "other",
+    icon: AlertTriangle
+  },
+  {
+    id: "d10",
+    title: "Library No-Due Clearance",
+    description: "Final clearance from library for graduation or transfer certificate issuance.",
+    department: "Central Library",
+    deadline: "2026-07-30",
+    status: "Open",
+    type: "other",
+    icon: Library
+  },
+  {
+    id: "d11",
+    title: "Hostel Leave Permission",
+    description: "Permission to leave the hostel premises for extended duration or holidays.",
+    department: "Hostel Warden Office",
+    deadline: "2026-05-10",
+    status: "Closing Soon",
+    type: "leave",
+    icon: Home
+  },
+  {
+    id: "d12",
+    title: "Final Year Review Submission",
+    description: "Submission of documentation and status report for the second phase of project review.",
+    department: "Project Coordinator",
+    deadline: "2026-05-14",
+    status: "Urgent",
+    type: "project",
+    icon: CheckCircle
+  }
+];
+
 export default function CollegeForms() {
   const [open, setOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newType, setNewType] = useState("internship");
   const [newDesc, setNewDesc] = useState("");
   const [newDeadline, setNewDeadline] = useState("");
+
+  const [applyModalOpen, setApplyModalOpen] = useState(false);
+  const [selectedForm, setSelectedForm] = useState<{title: string, department: string, type: string} | null>(null);
+
   const headers = getAuthHeaders();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -147,51 +293,128 @@ export default function CollegeForms() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {isLoading ? (
             Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-64 rounded-[2.5rem]" />)
-          ) : (forms as any[])?.map((form, i) => (
-            <motion.div
-              key={form.id}
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-            >
-              <Link href={`/college/forms/${form.id}`}>
-                <div className="group p-8 rounded-[2.5rem] border border-black/5 bg-white hover:bg-[#030303] transition-all duration-500 hover:shadow-[0_20px_60px_rgba(0,0,0,0.1)] relative overflow-hidden h-full flex flex-col justify-between">
-                  <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-10 transition-opacity">
-                    <GraduationCap className="w-24 h-24 text-primary" />
-                  </div>
-
-                  <div>
-                    <div className="flex items-start justify-between mb-6 relative z-10">
-                      <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-primary transition-colors border border-primary/10">
-                        <GraduationCap className="w-6 h-6 text-primary group-hover:text-white transition-colors" />
+          ) : (
+            <>
+              {(forms as any[])?.map((form, i) => (
+                <motion.div
+                  key={form.id}
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                >
+                  <Link href={`/college/forms/${form.id}`}>
+                    <div className="group p-8 rounded-[2.5rem] border border-black/5 bg-white hover:bg-[#030303] transition-all duration-500 hover:shadow-[0_20px_60px_rgba(0,0,0,0.1)] relative overflow-hidden h-full flex flex-col justify-between">
+                      <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-10 transition-opacity">
+                        <GraduationCap className="w-24 h-24 text-primary" />
                       </div>
-                      <Badge variant="outline" className={cn("rounded-full uppercase tracking-widest text-[10px] font-black px-3 py-1", typeColor[form.type as keyof typeof typeColor] || "border-black/10 group-hover:border-white/20 group-hover:text-white")}>
-                        {form.type}
-                      </Badge>
-                    </div>
 
-                    <h3 className="text-xl font-black mb-2 group-hover:text-white transition-colors tracking-tight">{form.title}</h3>
-                    <p className="text-black/40 font-medium text-sm mb-6 group-hover:text-white/40 transition-colors line-clamp-2">{form.description}</p>
-                  </div>
+                      <div>
+                        <div className="flex items-start justify-between mb-6 relative z-10">
+                          <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-primary transition-colors border border-primary/10">
+                            <GraduationCap className="w-6 h-6 text-primary group-hover:text-white transition-colors" />
+                          </div>
+                          <Badge variant="outline" className={cn("rounded-full uppercase tracking-widest text-[10px] font-black px-3 py-1", typeColor[form.type as keyof typeof typeColor] || "border-black/10 group-hover:border-white/20 group-hover:text-white")}>
+                            {form.type}
+                          </Badge>
+                        </div>
 
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-black/30 group-hover:text-white/30">
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-3.5 h-3.5" />
-                        {form.deadline ? `Deadline: ${new Date(form.deadline).toLocaleDateString()}` : "No Deadline"}
+                        <h3 className="text-xl font-black mb-2 group-hover:text-white transition-colors tracking-tight">{form.title}</h3>
+                        <p className="text-black/40 font-medium text-sm mb-6 group-hover:text-white/40 transition-colors line-clamp-2">{form.description}</p>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-black/30 group-hover:text-white/30">
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-3.5 h-3.5" />
+                            {form.deadline ? `Deadline: ${new Date(form.deadline).toLocaleDateString()}` : "No Deadline"}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest text-primary group-hover:text-white transition-colors">
+                          <span>Access Form</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest text-primary group-hover:text-white transition-colors">
-                      <span>Access Form</span>
-                      <ChevronRight className="w-4 h-4" />
+                  </Link>
+                </motion.div>
+              ))}
+              
+              {/* Dummy Demo Forms */}
+              {dummyForms.map((form, i) => (
+                <motion.div
+                  key={form.id}
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ delay: ((forms as any[])?.length || 0 + i) * 0.05 }}
+                >
+                  <div className="group p-8 rounded-[2.5rem] border border-black/5 bg-white hover:bg-[#030303] transition-all duration-500 hover:shadow-[0_20px_60px_rgba(0,0,0,0.1)] relative overflow-hidden h-full flex flex-col justify-between cursor-pointer">
+                    <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-10 transition-opacity">
+                      <form.icon className="w-24 h-24 text-primary" />
+                    </div>
+
+                    <div>
+                      <div className="flex items-start justify-between mb-6 relative z-10">
+                        <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center group-hover:bg-primary transition-colors border border-primary/10">
+                          <form.icon className="w-6 h-6 text-primary group-hover:text-white transition-colors" />
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                          <Badge variant="outline" className={cn("rounded-full uppercase tracking-widest text-[10px] font-black px-3 py-1 border-black/10 group-hover:border-white/20 group-hover:text-white")}>
+                            {form.type}
+                          </Badge>
+                          <Badge variant="outline" className={cn("rounded-full uppercase tracking-widest text-[8px] font-black px-2 py-0.5", statusColor[form.status])}>
+                            {form.status}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <h3 className="text-xl font-black mb-2 group-hover:text-white transition-colors tracking-tight">{form.title}</h3>
+                      <p className="text-black/40 font-black uppercase tracking-widest text-[10px] mb-2 group-hover:text-primary transition-colors">{form.department}</p>
+                      <p className="text-black/40 font-medium text-sm mb-6 group-hover:text-white/40 transition-colors line-clamp-2">{form.description}</p>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-black/30 group-hover:text-white/30">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-3.5 h-3.5" />
+                          Deadline: {new Date(form.deadline).toLocaleDateString()}
+                        </div>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSelectedForm({
+                            title: form.title,
+                            department: form.department,
+                            type: form.type
+                          });
+                          setApplyModalOpen(true);
+                        }}
+                        className="w-full h-12 rounded-2xl border-black/5 font-black uppercase tracking-widest text-[10px] group-hover:bg-primary group-hover:text-[#030303] group-hover:border-primary transition-all flex items-center justify-between px-6"
+                      >
+                        <span>Apply Now</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
+                </motion.div>
+              ))}
+            </>
+          )}
         </div>
       </div>
+
+      <ApplyFormModal 
+        isOpen={applyModalOpen} 
+        onClose={() => setApplyModalOpen(false)} 
+        form={selectedForm}
+        student={{
+          name: user?.name || "Student User",
+          id: (user as any)?.studentId || "STU-2026-0042",
+          year: "3rd",
+          semester: "6th"
+        }}
+      />
     </div>
   );
 }

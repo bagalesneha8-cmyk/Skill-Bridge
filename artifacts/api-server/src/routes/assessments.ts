@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { Assessment, AssessmentResult, User } from "@workspace/db";
+import { Assessment, AssessmentResult, User, Certification } from "@workspace/db";
 import { getUserIdFromToken } from "./auth";
 
 const router: IRouter = Router();
@@ -94,9 +94,19 @@ router.post("/assessments/:id/submit", async (req, res): Promise<void> => {
     certificate: passed ? `CERT-${userId}-${id}-${Date.now()}` : null,
   });
 
-  // Award XP
+  // Award XP and Generate Certificate in Profile
   if (passed) {
     await User.findByIdAndUpdate(userId, { $inc: { xp: 50 } });
+
+    // Generate certification in user profile
+    await Certification.create({
+      userId,
+      name: `${obj.title} Professional Certification`,
+      organization: "SkillSync.ai",
+      issueDate: new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" }),
+      credentialId: result.certificate,
+      credentialUrl: `/api/assessments/certificate/${result._id}`,
+    });
   }
 
   const resultObj = result.toObject();

@@ -958,6 +958,15 @@ export type UploadVideoResume201 = {
   thumbnailUrl?: string;
 };
 
+export type GetGlobalActivity200Item = {
+  id?: string;
+  user?: string;
+  action?: string;
+  target?: string;
+  time?: string;
+  type?: string;
+};
+
 export type ListFreelanceProjectsParams = {
   status?: string;
   skills?: string;

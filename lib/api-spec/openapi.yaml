@@ -1173,6 +1173,34 @@ paths:
                 items:
                   $ref: "#/components/schemas/LeaderboardEntry"
 
+  /activity/global:
+    get:
+      operationId: getGlobalActivity
+      tags: [career]
+      summary: Get recent global activity feed
+      responses:
+        "200":
+          description: Global activity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    user:
+                      type: string
+                    action:
+                      type: string
+                    target:
+                      type: string
+                    time:
+                      type: string
+                    type:
+                      type: string
+
   # FREELANCE
   /freelance/projects:
     get:

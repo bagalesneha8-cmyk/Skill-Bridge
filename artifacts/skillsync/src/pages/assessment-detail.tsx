@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useRoute, useLocation } from "wouter";
-import { useGetAssessment, useSubmitAssessment, getGetAssessmentQueryKey, getListAssessmentResultsQueryKey } from "@workspace/api-client-react";
+import { useGetAssessment, useSubmitAssessment, getGetAssessmentQueryKey, getListAssessmentResultsQueryKey, getGetUserCertificationsQueryKey, getGetMeQueryKey } from "@workspace/api-client-react";
 import { getAuthHeaders } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -73,6 +73,8 @@ export default function AssessmentDetail() {
       onSuccess: (res: any) => {
         setResult(res);
         queryClient.invalidateQueries({ queryKey: getListAssessmentResultsQueryKey({}) });
+        queryClient.invalidateQueries({ queryKey: getGetUserCertificationsQueryKey(undefined as any) });
+        queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
       },
       onError: () => {
         toast({ title: "Submission failed", variant: "destructive" });
@@ -96,31 +98,108 @@ export default function AssessmentDetail() {
   // Result screen
   if (result) {
     return (
-      <div className="p-6 max-w-xl mx-auto text-center">
-        <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
-          <div className={cn("w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4", result.passed ? "bg-green-500/10" : "bg-red-500/10")}>
-            {result.passed ? <Trophy className="w-10 h-10 text-green-500" /> : <CheckCircle className="w-10 h-10 text-red-400" />}
-          </div>
-          <h1 className="text-3xl font-bold mb-1">{result.score}%</h1>
-          <p className="text-lg font-semibold mb-2">{result.passed ? "Passed!" : "Not Passed"}</p>
-          <p className="text-muted-foreground mb-6 text-sm">
-            {result.passed ? `Congratulations! You passed ${assessData.title}.` : `You need 60% to pass. Review the material and try again.`}
-          </p>
-          {result.passed && result.certificate && (
-            <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg mb-6 text-sm">
-              <div className="text-green-600 font-semibold mb-1">Certificate Earned</div>
-              <code className="text-xs text-green-700">{result.certificate}</code>
-            </div>
+      <div className="p-6 max-w-2xl mx-auto">
+        {/* Result Hero */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={cn(
+            "relative overflow-hidden rounded-[3rem] p-10 md:p-16 text-center shadow-2xl mb-10",
+            result.passed ? "bg-green-600 text-white shadow-green-500/20" : "bg-[#030303] text-white shadow-primary/10"
           )}
-          <div className="flex gap-3 justify-center">
-            <Link href="/assessments">
-              <Button variant="outline" data-testid="button-back-assessments">Back to Assessments</Button>
-            </Link>
-            <Link href="/career">
-              <Button data-testid="button-view-career">View Career Stats</Button>
-            </Link>
+        >
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
+          
+          <div className="relative z-10 space-y-6">
+            <div className={cn(
+              "w-24 h-24 rounded-[2rem] flex items-center justify-center mx-auto shadow-xl",
+              result.passed ? "bg-white text-green-600" : "bg-white/10 text-white"
+            )}>
+              {result.passed ? <Trophy className="w-12 h-12" /> : <CheckCircle className="w-12 h-12" />}
+            </div>
+            
+            <div className="space-y-2">
+              <h1 className="text-6xl font-black tracking-tighter leading-none">{result.score}%</h1>
+              <p className="text-xl font-black uppercase tracking-widest opacity-80">
+                {result.passed ? "Assessment Passed" : "Keep Improving"}
+              </p>
+            </div>
+
+            <p className="text-sm font-medium max-w-md mx-auto opacity-70">
+              {result.passed 
+                ? `Incredible work! You've successfully validated your expertise in ${assessData.title}.` 
+                : `You need a score of 60% or higher to earn your certification. Take some time to review and try again.`}
+            </p>
           </div>
         </motion.div>
+
+        {/* Certificate Section */}
+        {result.passed && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="p-10 glass-light rounded-[3rem] border border-black/5 mb-10 text-center space-y-8"
+          >
+            <div className="space-y-2">
+              <div className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Credential Issued</div>
+              <h3 className="text-2xl font-black tracking-tight">Your Digital Certificate</h3>
+            </div>
+
+            <div className="relative aspect-[1.414/1] bg-white border-8 border-black/5 rounded-2xl shadow-xl p-8 flex flex-col justify-between overflow-hidden group">
+              <div className="absolute inset-0 bg-primary/[0.02] opacity-0 group-hover:opacity-100 transition-opacity" />
+              
+              <div className="flex justify-between items-start relative z-10">
+                <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-white font-black text-xl">S</div>
+                <div className="text-right">
+                  <div className="text-[8px] font-black uppercase tracking-widest text-black/30">Certificate ID</div>
+                  <div className="text-[10px] font-bold font-mono">{result.certificate}</div>
+                </div>
+              </div>
+
+              <div className="space-y-4 relative z-10">
+                <div className="text-[10px] font-black uppercase tracking-widest text-primary">Certificate of Excellence</div>
+                <h4 className="text-3xl font-black tracking-tighter leading-tight">{assessData.title} Professional</h4>
+                <p className="text-xs font-medium text-black/40">This verifies that the candidate has successfully completed the required assessment with a passing grade.</p>
+              </div>
+
+              <div className="flex justify-between items-end relative z-10">
+                <div className="text-left">
+                  <div className="text-[8px] font-black uppercase tracking-widest text-black/30">Issued By</div>
+                  <div className="text-sm font-black">SkillSync.ai</div>
+                </div>
+                <div className="w-16 h-16 opacity-10">
+                  <Trophy className="w-full h-full" />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="/profile" className="flex-1">
+                <Button className="w-full h-14 rounded-2xl bg-primary hover:bg-primary/90 text-[#030303] font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20 gap-2">
+                  View in Profile <ChevronRight className="w-4 h-4" />
+                </Button>
+              </Link>
+              <Button variant="outline" className="flex-1 h-14 rounded-2xl border-black/5 font-black uppercase tracking-widest text-[10px] hover:bg-black hover:text-white transition-all">
+                Download PDF
+              </Button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Footer Actions */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link href="/assessments">
+            <Button variant="ghost" className="h-12 px-8 rounded-full font-black uppercase tracking-widest text-[10px] text-black/40 hover:text-black">
+              <ArrowLeft className="w-4 h-4 mr-2" /> All Assessments
+            </Button>
+          </Link>
+          {!result.passed && (
+            <Button onClick={() => setResult(null)} className="h-12 px-8 rounded-full bg-black text-white font-black uppercase tracking-widest text-[10px]">
+              Try Again
+            </Button>
+          )}
+        </div>
       </div>
     );
   }
