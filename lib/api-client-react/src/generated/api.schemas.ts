@@ -262,6 +262,10 @@ export interface Job {
   location?: string;
   salary?: string;
   deadline?: string;
+  bannerImage?: string;
+  logo?: string;
+  rating?: number;
+  ratingCount?: number;
   postedById?: string;
   applicantCount?: number;
   createdAt?: string;

@@ -1908,6 +1908,14 @@ components:
           type: string
         deadline:
           type: string
+        bannerImage:
+          type: string
+        logo:
+          type: string
+        rating:
+          type: number
+        ratingCount:
+          type: integer
         postedById:
           type: string
         applicantCount:
